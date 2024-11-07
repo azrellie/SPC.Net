@@ -20,7 +20,7 @@ This API can be used for many various things that use C# as its language.
 Whether thats software for Windows, games for Unity, or even for addons/mods
 that use C# to develop said addons/mods.
 
-This API was developed on the .NET 7 SDK. Backports are unlikely since I do not really
+This API was developed on the .NET 8 SDK. Backports are unlikely since I do not really
 have the time for that (but you are free to do it your self if you so wish).
 
 Porting to other languages like C++, python, javascript etc are possible, but the same statement
