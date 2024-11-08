@@ -11,7 +11,6 @@ using System.Drawing.Imaging;
 using System.Dynamic;
 using System.Globalization;
 using System.IO.Compression;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -2475,6 +2474,7 @@ namespace Azrellie.Meteorology.SPC
 		/// <summary>
 		/// Archive data that has been processed by this API by saving it to a file in GeoJSON format.
 		/// </summary>
+		/// <remarks>This will be updated soon in future versions to cover the new data that can be gathered.</remarks>
 		public class Archive
 		{
 			public void ArchiveData(object data, string extension)
@@ -2926,6 +2926,11 @@ namespace Azrellie.Meteorology.SPC
 				return null;
 			}
 
+			/// <summary>
+			/// Gets currently active disturbances in the Atlantic or Pacific. (accepted basins: Atlantic, East Pacific, Central Pacific)
+			/// </summary>
+			/// <param name="basin">The basin to get disturbances from.</param>
+			/// <returns>An array containing <see cref="DisturbanceObject"/> objects.</returns>
 			public DisturbanceObject[] getDisturbances(string basin)
 			{
 				List<DisturbanceObject> nationalHurricaneCenterDisturbances = [];
@@ -3084,6 +3089,9 @@ namespace Azrellie.Meteorology.SPC
 			}
 		}
 
+		/// <summary>
+		/// Gather radar stations and radar images (and soon raw radar data) from the NWS.
+		/// </summary>
 		public class Radar
 		{
 			/// <summary>
@@ -3121,6 +3129,13 @@ namespace Azrellie.Meteorology.SPC
 				return [..radarStations];
 			}
 
+			/// <summary>
+			/// Gets a pre generated radar image from RIDGE II.
+			/// </summary>
+			/// <remarks>This method will be deprecated soon in favor of a binary radar decoder and image generator in future versions.</remarks>
+			/// <param name="radarStation">The radar station.</param>
+			/// <param name="product">The radar product.</param>
+			/// <returns>The file path for the downloaded radar image.</returns>
 			public string getRidge2RadarImage(string radarStation, RadarProduct product)
 			{
 				string url = $"https://mrms.ncep.noaa.gov/data/RIDGEII/L3/{radarStation}/{product}/";
@@ -3177,7 +3192,7 @@ namespace Azrellie.Meteorology.SPC
 			public delegate void WatchIssuedEventHandler(object sender, StormPredictionCenterWatch watch, StormPredictionCenterWatchBox watchBox);
 
 			/// <summary>
-			/// Fired whenever the Storm Prediction Center issues a tornado/severe thunderstorm watch.
+			/// Fired whenever the Storm Prediction Center issues a tornado/severe thunderstorm watch. (untested as of 1.0.4, need verification it works)
 			/// </summary>
 			public event WatchIssuedEventHandler watchIssued;
 
@@ -3250,7 +3265,7 @@ namespace Azrellie.Meteorology.SPC
 	}
 
 	/// <summary>
-	/// Util methods for this class. These methods are not intended to be accessed outside this script, but they are public anyway.
+	/// Util methods for this class. These methods are not intended to be accessed outside this script, but they are public anyway. (may change in future versions)
 	/// </summary>
 	public class Utils
 	{
