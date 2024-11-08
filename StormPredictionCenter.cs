@@ -63,7 +63,7 @@ using System.Xml;
 #pragma warning disable CS8604
 #pragma warning disable CS8767
 
-namespace Azrellie.Meteorology.SPC
+namespace Azrellie.oldMeteorology.SPC
 {
 	///////////// enums /////////////
 	public enum CategoricalRiskType
@@ -117,18 +117,18 @@ namespace Azrellie.Meteorology.SPC
 	///////////// exceptions /////////////
 	public class InvalidSPCDayException : Exception
 	{
-		public InvalidSPCDayException():base(){}
-		public InvalidSPCDayException(string message):base(message){}
+		public InvalidSPCDayException() : base() { }
+		public InvalidSPCDayException(string message) : base(message) { }
 	}
 	public class SPCOutlookDoesntExistException : Exception
 	{
-		public SPCOutlookDoesntExistException():base(){}
-		public SPCOutlookDoesntExistException(string message):base(message){}
+		public SPCOutlookDoesntExistException() : base() { }
+		public SPCOutlookDoesntExistException(string message) : base(message) { }
 	}
 	public class SPCWatchDoesntExistOrInvalidWatchNumberException : Exception
 	{
-		public SPCWatchDoesntExistOrInvalidWatchNumberException():base(){}
-		public SPCWatchDoesntExistOrInvalidWatchNumberException(string message):base(message){}
+		public SPCWatchDoesntExistOrInvalidWatchNumberException() : base() { }
+		public SPCWatchDoesntExistOrInvalidWatchNumberException(string message) : base(message) { }
 	}
 	///////////// exceptions /////////////
 
@@ -175,7 +175,7 @@ namespace Azrellie.Meteorology.SPC
 			this.lat = lat;
 			this.lng = lng;
 		}
-		public SPCPoint(){}
+		public SPCPoint() { }
 	}
 
 	///////////// geojson stuff /////////////
@@ -196,7 +196,7 @@ namespace Azrellie.Meteorology.SPC
 		public List<Feature> features = [];
 	}
 	///////////// geojson stuff /////////////
-   
+
 	///////////// SPC specific classes /////////////
 	public class RiskArea
 	{
@@ -310,7 +310,7 @@ namespace Azrellie.Meteorology.SPC
 		public double maxWindGustMph = -1;
 		public bool isPDS = false;
 		public DateTime issued = DateTime.MinValue;
-		public DateTime expires	= DateTime.MinValue;
+		public DateTime expires = DateTime.MinValue;
 		public SPCPolygon polygon = new();
 		public override string ToString() => $"{watchType} {watchNumber}";
 	}
@@ -345,7 +345,7 @@ namespace Azrellie.Meteorology.SPC
 		public string timezone { get; set; } = string.Empty;
 		public string type { get; set; } = string.Empty;
 		public DateTime advisoryDate { get; set; } = DateTime.UnixEpoch;
-		public string basin {  get; set; } = string.Empty;
+		public string basin { get; set; } = string.Empty;
 		public string advisoryNumber { get; set; } = string.Empty;
 		public int stormNumber { get; set; } = 0;
 		public string stormName { get; set; } = string.Empty;
@@ -526,7 +526,7 @@ namespace Azrellie.Meteorology.SPC
 
 						spcObject.Add(riskArea);
 					}
-				return [..spcObject];
+				return [.. spcObject];
 			}
 
 			/// <summary>
@@ -777,7 +777,7 @@ namespace Azrellie.Meteorology.SPC
 						spcObject.Add(riskArea);
 					}
 
-				return [..spcObject];
+				return [.. spcObject];
 			}
 
 			/// <summary>
@@ -867,7 +867,7 @@ namespace Azrellie.Meteorology.SPC
 
 						spcObject.Add(riskArea);
 					}
-				return [..spcObject];
+				return [.. spcObject];
 			}
 
 			/// <summary>
@@ -962,9 +962,9 @@ namespace Azrellie.Meteorology.SPC
 
 					spcObject.Add(riskArea);
 				}
-				return [..spcObject];
+				return [.. spcObject];
 			}
-			
+
 			/// <summary>
 			/// Gets the latest tornado outlook from the Storm Prediction Center, with a <see cref="int">day</see> parameter to specify the day of the tornado outlook that should be retrieved.
 			/// <para><paramref name="day"/> parameter is clamped between 1-2, and defaults to 1 if not specified.</para>
@@ -1072,7 +1072,7 @@ namespace Azrellie.Meteorology.SPC
 					spcObject.Add(riskArea);
 				}
 
-				return [..spcObject];
+				return [.. spcObject];
 			}
 
 			/// <summary>
@@ -1178,7 +1178,7 @@ namespace Azrellie.Meteorology.SPC
 
 					spcObject.Add(riskArea);
 				}
-				return [..spcObject];
+				return [.. spcObject];
 			}
 
 			/// <summary>
@@ -1284,7 +1284,7 @@ namespace Azrellie.Meteorology.SPC
 
 					spcObject.Add(riskArea);
 				}
-				return [..spcObject];
+				return [.. spcObject];
 			}
 
 			/// <summary>
@@ -1330,7 +1330,7 @@ namespace Azrellie.Meteorology.SPC
 				}
 
 				// begin reading the md kml files
-				List< StormPredictionCenterMesoscaleDiscussion> stormPredictionCenterMesoscaleDiscussions = [];
+				List<StormPredictionCenterMesoscaleDiscussion> stormPredictionCenterMesoscaleDiscussions = [];
 				foreach (string mesoscaleDiscussion in Directory.GetFiles(activeMds))
 				{
 					StormPredictionCenterMesoscaleDiscussion stormPredictionCenterMesoscaleDiscussion = new();
@@ -1349,7 +1349,7 @@ namespace Azrellie.Meteorology.SPC
 					stormPredictionCenterMesoscaleDiscussions.Add(stormPredictionCenterMesoscaleDiscussion);
 				}
 
-				return [..stormPredictionCenterMesoscaleDiscussions];
+				return [.. stormPredictionCenterMesoscaleDiscussions];
 			}
 		}
 
@@ -1417,7 +1417,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				var dupeRemovedList = stormPredictionCenterWatches.Distinct(new WatchComparer()).ToList();
 				stormPredictionCenterWatches = dupeRemovedList;
-				return [..stormPredictionCenterWatches];
+				return [.. stormPredictionCenterWatches];
 			}
 
 			/// <summary>
@@ -1479,7 +1479,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				var dupeRemovedList = stormPredictionCenterWatches.Distinct(new WatchComparer()).ToList();
 				stormPredictionCenterWatches = dupeRemovedList;
-				return [..stormPredictionCenterWatches];
+				return [.. stormPredictionCenterWatches];
 			}
 
 			/// <summary>
@@ -1547,7 +1547,7 @@ namespace Azrellie.Meteorology.SPC
 					stormPredictionCenterWatchBoxes.Add(stormPredictionCenterWatchBox);
 				}
 
-				return [..stormPredictionCenterWatchBoxes];
+				return [.. stormPredictionCenterWatchBoxes];
 			}
 
 			/// <summary>
@@ -1652,15 +1652,15 @@ namespace Azrellie.Meteorology.SPC
 			public WatchHazards getWatchRisks(int watchNumber, int year)
 			{
 				string watchNumberStr = watchNumber.ToString();
-				if (watchNumber < 10)
-					watchNumberStr += "000" + watchNumber;
+                if (watchNumber < 10)
+					watchNumberStr = "000" + watchNumber;
 				else if (watchNumber >= 10 && watchNumber < 100)
-					watchNumberStr += "00" + watchNumber;
+					watchNumberStr = "00" + watchNumber;
 				else if (watchNumber >= 100 && watchNumber < 1000)
-					watchNumberStr += "0" + watchNumber;
+					watchNumberStr = "0" + watchNumber;
 
 				string url = $"https://www.spc.noaa.gov/products/watch/{year}/ww{watchNumberStr}.html";
-				HtmlWeb web = new();
+                HtmlWeb web = new();
 				HtmlDocument doc = web.Load(url);
 				HtmlNode table = doc.DocumentNode.SelectSingleNode("//table[@width='529' and @cellspacing='0' and @cellpadding='0' and @align='center']") ?? throw new SPCWatchDoesntExistOrInvalidWatchNumberException($"{watchNumber} is an invalid watch number because severe thunderstorm watch/tornado watch {watchNumber} do not exist.");
 				HtmlNodeCollection nodes = table.SelectNodes("//a[contains(@class,'wblack')]");
@@ -1717,7 +1717,7 @@ namespace Azrellie.Meteorology.SPC
 			public StormPredictionCenterWarning[] getLatestConvectiveWarnings()
 			{
 				List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [..stormPredictionCenterWarnings];
+				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [.. stormPredictionCenterWarnings];
 				foreach (var feature in data["features"])
 				{
 					string alert = (string)feature["properties"]["event"];
@@ -1813,7 +1813,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				}
 
-				return [..stormPredictionCenterWarnings];
+				return [.. stormPredictionCenterWarnings];
 			}
 
 			/// <summary>
@@ -1823,7 +1823,7 @@ namespace Azrellie.Meteorology.SPC
 			public StormPredictionCenterWarning[] getLatestHydrologicWarnings()
 			{
 				List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [..stormPredictionCenterWarnings];
+				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [.. stormPredictionCenterWarnings];
 				foreach (var feature in data["features"])
 				{
 					string alert = (string)feature["properties"]["event"];
@@ -1922,7 +1922,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				}
 
-				return [..stormPredictionCenterWarnings];
+				return [.. stormPredictionCenterWarnings];
 			}
 
 			/// <summary>
@@ -1932,7 +1932,7 @@ namespace Azrellie.Meteorology.SPC
 			public StormPredictionCenterWarning[] getLatestNonConvectiveWarnings()
 			{
 				List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [..stormPredictionCenterWarnings];
+				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [.. stormPredictionCenterWarnings];
 				foreach (var feature in data["features"])
 				{
 					string alert = (string)feature["properties"]["event"];
@@ -2037,7 +2037,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				}
 
-				return [..stormPredictionCenterWarnings];
+				return [.. stormPredictionCenterWarnings];
 			}
 
 			/// <summary>
@@ -2047,7 +2047,7 @@ namespace Azrellie.Meteorology.SPC
 			public StormPredictionCenterWarning[] getLatestMarineWarnings()
 			{
 				List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [..stormPredictionCenterWarnings];
+				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [.. stormPredictionCenterWarnings];
 				foreach (var feature in data["features"])
 				{
 					string alert = (string)feature["properties"]["event"];
@@ -2147,7 +2147,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				}
 
-				return [..stormPredictionCenterWarnings];
+				return [.. stormPredictionCenterWarnings];
 			}
 
 			/// <summary>
@@ -2157,7 +2157,7 @@ namespace Azrellie.Meteorology.SPC
 			public StormPredictionCenterWarning[] getLatestTropicalWarnings()
 			{
 				List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [..stormPredictionCenterWarnings];
+				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [.. stormPredictionCenterWarnings];
 				foreach (var feature in data["features"])
 				{
 					string alert = (string)feature["properties"]["event"];
@@ -2254,7 +2254,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				}
 
-				return [..stormPredictionCenterWarnings];
+				return [.. stormPredictionCenterWarnings];
 			}
 
 			/// <summary>
@@ -2264,7 +2264,7 @@ namespace Azrellie.Meteorology.SPC
 			public StormPredictionCenterWarning[] getLatestWinterWeatherWarnings()
 			{
 				List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [..stormPredictionCenterWarnings];
+				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [.. stormPredictionCenterWarnings];
 				foreach (var feature in data["features"])
 				{
 					string alert = (string)feature["properties"]["event"];
@@ -2363,7 +2363,7 @@ namespace Azrellie.Meteorology.SPC
 
 				}
 
-				return [..stormPredictionCenterWarnings];
+				return [.. stormPredictionCenterWarnings];
 			}
 
 			/// <summary>
@@ -2373,7 +2373,7 @@ namespace Azrellie.Meteorology.SPC
 			public StormPredictionCenterWarning[] getLatestWarnings(string[] filter)
 			{
 				List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [..stormPredictionCenterWarnings];
+				if (JsonConvert.DeserializeObject(Utils.downloadString("https://api.weather.gov/alerts/active")) is not JObject data) return [.. stormPredictionCenterWarnings];
 				foreach (var feature in data["features"])
 				{
 					string alert = (string)feature["properties"]["event"];
@@ -2467,7 +2467,7 @@ namespace Azrellie.Meteorology.SPC
 					}
 				}
 
-				return [..stormPredictionCenterWarnings];
+				return [.. stormPredictionCenterWarnings];
 			}
 		}
 
@@ -2886,13 +2886,13 @@ namespace Azrellie.Meteorology.SPC
 																	stormObject.WindRadii.Add(windRadii);
 																}
 															}
-											}
+										}
 										foreach (string file in Directory.GetFiles(temp + "/nhc data"))
 											File.Delete(file);
 									}
 							}
 
-				return [..nationalHurricaneCenterActiveStorms];
+				return [.. nationalHurricaneCenterActiveStorms];
 			}
 
 			/// <summary>
@@ -3085,7 +3085,7 @@ namespace Azrellie.Meteorology.SPC
 									nationalHurricaneCenterDisturbances.Add(disturbance);
 								}
 				}
-				return [..nationalHurricaneCenterDisturbances];
+				return [.. nationalHurricaneCenterDisturbances];
 			}
 		}
 
@@ -3126,7 +3126,7 @@ namespace Azrellie.Meteorology.SPC
 							radarStation.mode = (string)feature["properties"]["rda"]["properties"]["mode"];
 						radarStations.Add(radarStation);
 					}
-				return [..radarStations];
+				return [.. radarStations];
 			}
 
 			/// <summary>
@@ -3160,7 +3160,7 @@ namespace Azrellie.Meteorology.SPC
 					using (Stream newFile = File.Create(tifFile))
 					using (FileStream fileStream = File.OpenRead(filePath))
 					using (GZipStream stream = new(fileStream, CompressionMode.Decompress))
-					stream.CopyTo(newFile);
+						stream.CopyTo(newFile);
 
 					// convert TIF to PNG
 					if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
