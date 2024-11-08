@@ -3192,7 +3192,7 @@ namespace Azrellie.Meteorology.SPC
 			public delegate void WatchIssuedEventHandler(object sender, StormPredictionCenterWatch watch, StormPredictionCenterWatchBox watchBox);
 
 			/// <summary>
-			/// Fired whenever the Storm Prediction Center issues a tornado/severe thunderstorm watch. (untested as of 1.0.4, need verification it works)
+			/// Fired whenever the Storm Prediction Center issues a tornado/severe thunderstorm watch. (untested as of 1.0.2, need verification it works)
 			/// </summary>
 			public event WatchIssuedEventHandler watchIssued;
 
