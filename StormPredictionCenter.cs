@@ -63,7 +63,7 @@ using System.Xml;
 #pragma warning disable CS8604
 #pragma warning disable CS8767
 
-namespace Azrellie.oldMeteorology.SPC
+namespace Azrellie.Meteorology.SPC
 {
 	///////////// enums /////////////
 	public enum CategoricalRiskType
