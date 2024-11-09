@@ -1,5 +1,7 @@
 # Storm Prediction Center API for C#
 
+### Latest verison: 1.0.6-a
+
 This API was made for the need of me constantly having to access data
 from the Storm Prediction Center, most notably the convective outlooks,
 tornado watches, severe thunderstorm watches, and mesoscale discussions.
