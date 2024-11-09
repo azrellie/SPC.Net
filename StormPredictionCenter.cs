@@ -62,6 +62,7 @@ using System.Xml;
 #pragma warning disable CS8602
 #pragma warning disable CS8604
 #pragma warning disable CS8767
+#pragma warning disable CS1591
 
 namespace Azrellie.Meteorology.SPC
 {
@@ -1652,7 +1653,7 @@ namespace Azrellie.Meteorology.SPC
 			public WatchHazards getWatchRisks(int watchNumber, int year)
 			{
 				string watchNumberStr = watchNumber.ToString();
-                if (watchNumber < 10)
+				if (watchNumber < 10)
 					watchNumberStr = "000" + watchNumber;
 				else if (watchNumber >= 10 && watchNumber < 100)
 					watchNumberStr = "00" + watchNumber;
@@ -1660,7 +1661,7 @@ namespace Azrellie.Meteorology.SPC
 					watchNumberStr = "0" + watchNumber;
 
 				string url = $"https://www.spc.noaa.gov/products/watch/{year}/ww{watchNumberStr}.html";
-                HtmlWeb web = new();
+				HtmlWeb web = new();
 				HtmlDocument doc = web.Load(url);
 				HtmlNode table = doc.DocumentNode.SelectSingleNode("//table[@width='529' and @cellspacing='0' and @cellpadding='0' and @align='center']") ?? throw new SPCWatchDoesntExistOrInvalidWatchNumberException($"{watchNumber} is an invalid watch number because severe thunderstorm watch/tornado watch {watchNumber} do not exist.");
 				HtmlNodeCollection nodes = table.SelectNodes("//a[contains(@class,'wblack')]");
@@ -3221,7 +3222,7 @@ namespace Azrellie.Meteorology.SPC
 			public Events()
 			{
 				// TODO: include the other watches that were issued instead of just 1
-				timer.TickInterval = 10000;
+				timer.TickInterval = 4000;
 				timer.TickOnStart = true;
 				timer.OnTimerTick += (sender, e) =>
 				{
@@ -3233,20 +3234,26 @@ namespace Azrellie.Meteorology.SPC
 
 					// add them to the list first, since we dont wanna fire this event when these are active before this code is ran
 					foreach (StormPredictionCenterWatch watch in tornadoWatches)
-						lastWatches.Add(watch.watchNumber);
+						if (timer.TimeSinceStart < watch.sent.Ticks) // watch has been issued after we started listening for events
+							lastWatches.Add(watch.watchNumber);
 					foreach (StormPredictionCenterWatch watch in severeThunderstormWatches)
-						lastWatches.Add(watch.watchNumber);
+						if (timer.TimeSinceStart < watch.sent.Ticks) // watch has been issued after we started listening for events
+							lastWatches.Add(watch.watchNumber);
 
 					StormPredictionCenterWatch theNewWatch = null;
 					StormPredictionCenterWatchBox theNewWatchBox = null;
 					foreach (StormPredictionCenterWatch watch in tornadoWatches)
 						if (!lastWatches.Contains(watch.watchNumber))
+						{
 							theNewWatch = watch;
+							lastWatches.Add(watch.watchNumber);
+						}
 					foreach (StormPredictionCenterWatchBox watchBox in watchBoxes)
 						if (!lastWatches.Contains(watchBox.watchNumber))
 							theNewWatchBox = watchBox;
 
-					watchIssued?.Invoke(this, theNewWatch, theNewWatchBox);
+					if (theNewWatch != null)
+						watchIssued?.Invoke(this, theNewWatch, theNewWatchBox);
 				};
 				timer.Start();
 			}
