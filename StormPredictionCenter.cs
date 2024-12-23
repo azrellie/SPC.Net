@@ -160,7 +160,6 @@ namespace Azrellie.Meteorology.SPC
 			return HashCode.Combine(obj.watchNumber);
 		}
 	}
-
 	///////////// list comparison stuff /////////////
 
 	public class SPCPolygon
@@ -217,8 +216,15 @@ namespace Azrellie.Meteorology.SPC
 	///////////// SPC mesoscale discussion classes /////////////
 	public class StormPredictionCenterMesoscaleDiscussion
 	{
-		public string discussion = string.Empty;
+		public string type = string.Empty;
+		public string url = string.Empty;
+		public string fullName = string.Empty;
+		public int mesoscaleNumber = 0;
+		public DateTimeOffset issued = DateTimeOffset.UnixEpoch;
+		public string issuedString = string.Empty;
+		public string areasAffected = string.Empty;
 		public SPCPolygon polygon = new();
+		public override string ToString() => $"{fullName} | Type: {type} | Issued: {issuedString} | More at: {url}";
 	}
 	///////////// SPC mesoscale discussion classes /////////////
 
@@ -313,7 +319,13 @@ namespace Azrellie.Meteorology.SPC
 		public DateTime issued = DateTime.MinValue;
 		public DateTime expires = DateTime.MinValue;
 		public SPCPolygon polygon = new();
-		public override string ToString() => $"{watchType} {watchNumber}";
+		public override string ToString()
+		{
+			string pdsString = string.Empty;
+			if (isPDS)
+				pdsString = "PDS ";
+			return $"{pdsString}{watchType} {watchNumber} | Max Hail Size: {Math.Floor(maxHailSizeInches * 100) / 100} in | Max Wind Gust: {Math.Floor(maxWindGustMph * 100) / 100} mph";
+		}
 	}
 	///////////// SPC watch box classes /////////////
 
@@ -1294,6 +1306,24 @@ namespace Azrellie.Meteorology.SPC
 			/// <returns>An array of <see cref="StormPredictionCenterMesoscaleDiscussion"/> objects which contains the processed data in a more easy to use format.</returns>
 			public StormPredictionCenterMesoscaleDiscussion[] getLatestMesoscaleDiscussion()
 			{
+				Dictionary<string, string> timeZoneConvert = new()
+				{
+					{"AST", "-04:00"},
+					{"ADT", "-03:00"},
+					{"GMT", "+00:00"},
+					{"EST", "-05:00"},
+					{"EDT", "-04:00"},
+					{"CST", "-06:00"},
+					{"CDT", "-05:00"},
+					{"MST", "-07:00"},
+					{"MDT", "-06:00"},
+					{"AZOT", "-01:00"},
+					{"AZOST", "+00:00"},
+					{"CVT", "-01:00"},
+					{"PDT", "-07:00"},
+					{"PST", "-08:00"}
+				};
+
 				string temp = Path.GetTempPath();
 				if (!Directory.Exists(temp + "\\spc temp"))
 					Directory.CreateDirectory(temp + "\\spc temp");
@@ -1345,7 +1375,37 @@ namespace Azrellie.Meteorology.SPC
 							foreach (Vector vector in geometry.OuterBoundary.LinearRing.Coordinates)
 								polygon.coordinates.Add([vector.Latitude, vector.Longitude]);
 							stormPredictionCenterMesoscaleDiscussion.polygon = polygon;
-							stormPredictionCenterMesoscaleDiscussion.discussion = feature.Description.Text;
+							string[] lines = Regex.Replace(feature.Description.Text, "<.*?>", string.Empty).Trim().Split('\n');
+							stormPredictionCenterMesoscaleDiscussion.url = lines[0].Split(' ')[1].Trim();
+							stormPredictionCenterMesoscaleDiscussion.fullName = lines[1].Trim();
+							stormPredictionCenterMesoscaleDiscussion.mesoscaleNumber = int.Parse(lines[1].Split(' ')[2]);
+							string issuedString = lines[2].Split(':')[1];
+							string timeZone = string.Empty;
+							string timeOffset = string.Empty;
+							foreach (KeyValuePair<string, string> pair in timeZoneConvert)
+								if (issuedString.Contains(pair.Key))
+								{
+									timeOffset = pair.Value;
+									timeZone = pair.Key;
+								}
+							DateTimeOffset issued = DateTimeOffset.ParseExact(issuedString.Replace(timeZone, timeOffset).Trim(), "hhmm tt zzz ddd MMM dd yyyy", CultureInfo.InvariantCulture);
+							stormPredictionCenterMesoscaleDiscussion.issued = issued;
+							stormPredictionCenterMesoscaleDiscussion.issuedString = issued.ToString("MM-dd-yyyy hh:mm tt TZ").Replace("TZ", timeZone).Trim();
+							stormPredictionCenterMesoscaleDiscussion.areasAffected = lines[3].Trim();
+							string type = string.Empty;
+							if (lines[4].Contains("severe potential", StringComparison.InvariantCultureIgnoreCase))
+								type = "Severe Potential";
+							else if (lines[4].Contains("tornado watch", StringComparison.InvariantCultureIgnoreCase))
+								type = "Concerning Tornado Watch " + Regex.Replace(lines[4], "[^0-9]", string.Empty);
+							else if (lines[4].Contains("severe thunderstorm watch", StringComparison.InvariantCultureIgnoreCase))
+								type = "Concerning Severe Thunderstorm Watch " + Regex.Replace(lines[4], "[^0-9.]", string.Empty);
+							else if (lines[4].Contains("snow", StringComparison.InvariantCultureIgnoreCase))
+								type = "Heavy Snow";
+							else if (lines[4].Contains("freezing rain", StringComparison.InvariantCultureIgnoreCase))
+								type = "Freezing Rain";
+							else if (lines[4].Contains("blizzard", StringComparison.InvariantCultureIgnoreCase))
+								type = "Blizzard";
+							stormPredictionCenterMesoscaleDiscussion.type = type;
 						}
 					stormPredictionCenterMesoscaleDiscussions.Add(stormPredictionCenterMesoscaleDiscussion);
 				}
@@ -1552,11 +1612,10 @@ namespace Azrellie.Meteorology.SPC
 			}
 
 			/// <summary>
-			/// Gets archived tornado and severe thunderstorm watches from the National Weather Service.
+			/// Gets archived tornado and severe thunderstorm watches from the National Weather Service and Iowa Environmental Mesonet.
 			/// </summary>
-			/// <remarks>This method only returns the watch boxes for these watches, and not the polygons of the affected counties.</remarks>
 			/// <returns>An array of <see cref="StormPredictionCenterWatch"/> class which contains the processed data in a more easy to use format.</returns>
-			public StormPredictionCenterWatchBox[] getArchivedWatches(int year, int month, int day, string? time)
+			public StormPredictionCenterWatchBox[] getArchivedWatches(int year, int month, int day, string time = "")
 			{
 				List<StormPredictionCenterWatchBox> stormPredictionCenterWatchBoxes = [];
 				string strMonth = month.ToString();
@@ -1565,7 +1624,7 @@ namespace Azrellie.Meteorology.SPC
 				string strDay = day.ToString();
 				if (day < 10)
 					strDay = "0" + strDay;
-				if (time != null)
+				if (time != string.Empty)
 				{
 					if (JsonConvert.DeserializeObject(Utils.downloadString($"https://mesonet.agron.iastate.edu/json/spcwatch.py?ts={year}{strMonth}{strDay}{time}&fmt=geojson")) is JObject jsonData)
 						foreach (var watch in jsonData["features"])
@@ -1639,11 +1698,13 @@ namespace Azrellie.Meteorology.SPC
 
 			/// <summary>
 			/// Gets the likelihood of particular hazards from a specific severe thunderstorm/tornado watch.
-			/// Probabilities to percentages are as follow:
-			/// - Low: 5-20%
-			/// - Moderate: 30-60%
-			/// - High: >70%
 			/// </summary>
+			/// <remarks>
+			/// Probabilities to percentages are as follow:
+			/// Low: 5-20%
+			/// | Moderate: 30-60%
+			/// | High: >70%
+			/// </remarks>
 			/// <remarks>The most recent severe thunderstorm/tornado watches can be found at the Storm Prediction Centers website: <see href="https://www.spc.noaa.gov/"></see></remarks>
 			/// <remarks><paramref name="watchNumber"/> is a parameter that specifies the watch number. Invalid watch numbers will still return a <see cref="WatchHazards"/> class, but all of the risks will be 0% with an empty <see cref="string"/>.</remarks>
 			/// <returns>A <see cref="WatchHazards"/> class containing data about the possibility for tornadoes, severe wind, and severe hail.</returns>
@@ -2598,13 +2659,11 @@ namespace Azrellie.Meteorology.SPC
 												string timeZone = string.Empty;
 												string timeOffset = string.Empty;
 												foreach (KeyValuePair<string, string> pair in timeZoneConvert)
-												{
 													if (value.Contains(pair.Key))
 													{
 														timeOffset = pair.Value;
 														timeZone = pair.Key;
 													}
-												}
 												stormObject.dateTime = DateTime.Parse(value.Replace(timeZone, timeOffset));
 												break;
 											case "movement":
@@ -3188,9 +3247,10 @@ namespace Azrellie.Meteorology.SPC
 			}
 		}
 
+		// TODO: add an event that fires when watches are updated. also add events for newly issued mesoscale discussions, warnings, and tropical cyclones
 		public class Events
 		{
-			public delegate void WatchIssuedEventHandler(object sender, StormPredictionCenterWatch watch, StormPredictionCenterWatchBox watchBox);
+			public delegate void WatchIssuedEventHandler(object sender, StormPredictionCenterWatch[] watches, StormPredictionCenterWatchBox[] watchBoxes);
 
 			/// <summary>
 			/// Fired whenever the Storm Prediction Center issues a tornado/severe thunderstorm watch. (untested as of 1.0.2, need verification it works)
@@ -3221,39 +3281,41 @@ namespace Azrellie.Meteorology.SPC
 			private readonly List<int> lastWatches = [];
 			public Events()
 			{
-				// TODO: include the other watches that were issued instead of just 1
 				timer.TickInterval = 4000;
 				timer.TickOnStart = true;
 				timer.OnTimerTick += (sender, e) =>
 				{
 					if (!eventsEnabled) return;
-
 					StormPredictionCenterWatch[] tornadoWatches = watches.getActiveTornadoWatches();
 					StormPredictionCenterWatch[] severeThunderstormWatches = watches.getActiveSevereThunderstormWatches();
 					StormPredictionCenterWatchBox[] watchBoxes = watches.getActiveWatchBoxes();
 
-					// add them to the list first, since we dont wanna fire this event when these are active before this code is ran
+					List<StormPredictionCenterWatch> theNewWatch = [];
+					foreach (StormPredictionCenterWatch watch in tornadoWatches)
+					{
+						if (!lastWatches.Contains(watch.watchNumber))
+						{
+							theNewWatch.Add(watch);
+							lastWatches.Add(watch.watchNumber);
+						}
+					}
+
+					List<StormPredictionCenterWatchBox>? theNewWatchBox = [];
+					foreach (StormPredictionCenterWatchBox watchBox in watchBoxes)
+						if (!lastWatches.Contains(watchBox.watchNumber))
+							theNewWatchBox.Add(watchBox);
+
+					// refire check: dont call this event again if the found watches match the last ones stored
 					foreach (StormPredictionCenterWatch watch in tornadoWatches)
 						if (timer.TimeSinceStart < watch.sent.Ticks) // watch has been issued after we started listening for events
 							lastWatches.Add(watch.watchNumber);
+
 					foreach (StormPredictionCenterWatch watch in severeThunderstormWatches)
 						if (timer.TimeSinceStart < watch.sent.Ticks) // watch has been issued after we started listening for events
 							lastWatches.Add(watch.watchNumber);
 
-					StormPredictionCenterWatch theNewWatch = null;
-					StormPredictionCenterWatchBox theNewWatchBox = null;
-					foreach (StormPredictionCenterWatch watch in tornadoWatches)
-						if (!lastWatches.Contains(watch.watchNumber))
-						{
-							theNewWatch = watch;
-							lastWatches.Add(watch.watchNumber);
-						}
-					foreach (StormPredictionCenterWatchBox watchBox in watchBoxes)
-						if (!lastWatches.Contains(watchBox.watchNumber))
-							theNewWatchBox = watchBox;
-
-					if (theNewWatch != null)
-						watchIssued?.Invoke(this, theNewWatch, theNewWatchBox);
+					if (theNewWatch.Count > 0)
+						watchIssued?.Invoke(this, [.. theNewWatch], [.. theNewWatchBox]);
 				};
 				timer.Start();
 			}
