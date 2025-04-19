@@ -1,3 +1,6 @@
+# Update 4/19/2025
+Lots of bug fixes and big changes + new additions will be coming in a month to this API. Because I am unable to access my packages on nuget.org at the moment, this update will be delayed 1 month.
+
 # Storm Prediction Center API for C#
 
 ### Latest verison: 1.0.8
