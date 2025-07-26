@@ -1,3 +1,5 @@
+### *This repo has been renamed to SPC.Net previously named StormPredictionCenter.*
+
 # Storm Prediction Center API for C#
 
 ### Latest verison: 2.0.0
