@@ -1,9 +1,6 @@
-# Update 4/19/2025
-Lots of bug fixes and big changes + new additions will be coming in a month to this API. Because I am unable to access my packages on nuget.org at the moment, this update will be delayed 1 month (or more if needed), but will be available on GitHub when finished then nuget.org.
-
 # Storm Prediction Center API for C#
 
-### Latest verison: 1.0.8
+### Latest verison: 2.0.0
 
 This API was made for the need of me constantly having to access data
 from the Storm Prediction Center, most notably the convective outlooks,
