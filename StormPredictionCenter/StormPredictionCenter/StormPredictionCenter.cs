@@ -119,6 +119,7 @@ public class Utils
 		http.DefaultRequestHeaders.UserAgent.ParseAdd("C# Code");
 	}
 
+	// watch numbers can be obtained through the vtec property and might be better to use that over this current method
 	public static int getSevereThunderstormWatchNumber(string text)
 	{
 		string[] split = text.Replace('\n', ' ').Split(' ');
@@ -147,7 +148,7 @@ public class Utils
 			string lower = word.ToLower();
 
 			// we found a match, that means the next word will be the watch number
-			if (matchingWord == "tornado watch ")
+			if (matchingWord == "tornado watch " || matchingWord == "tornado watch\n" || matchingWord == "tornado\nwatch ")
 				return int.Parse(word.Where(char.IsDigit).ToArray());
 
 			// check if "lower" matches to any of these words, if it does, concat it to the matchingWord string variable
@@ -284,10 +285,6 @@ public class Utils
 			Stream stream = await response.Content.ReadAsStreamAsync();
 			MemoryStream memStream = new();
 			stream.CopyTo(memStream);
-			/*FileStream fs = File.OpenWrite(Environment.CurrentDirectory + "/test.txt");
-			await memStream.CopyToAsync(fs);
-			fs.Close();
-			memStream.Position = 0;*/
 			return memStream;
 		}
 		catch (Exception ex)
@@ -332,7 +329,7 @@ public class Utils
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine($"Error fetching or parsing the webpage: {ex.Message}");
+			Console.WriteLine($"[SPC] Error fetching or parsing the webpage: {ex.Message}");
 		}
 
 		return urls;

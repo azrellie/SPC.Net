@@ -4,7 +4,7 @@
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <PackageIcon>national weather service logo.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/azrellie/StormPredictionCenter</PackageProjectUrl>
@@ -13,7 +13,11 @@
     <Description>An API made to gather data from the Storm Prediction Center (and other US meteorology agencies), and compile it into an easy to use format.</Description>
     <Authors>Azrellie</Authors>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageReleaseNotes>Lots of revamps, changes, fixed, and new stuff</PackageReleaseNotes>
+    <PackageReleaseNotes>Added SWPC
+Using Geojson.Net for geojson reading
+Added current storm reports gathering
+Made a majority of the methods async
+Bug fixes</PackageReleaseNotes>
     <Product>SPC.Net</Product>
     <Title>SPCNET</Title>
     <PackageId>SPCNet</PackageId>

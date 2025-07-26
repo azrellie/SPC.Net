@@ -1,10 +1,11 @@
 # Storm Prediction Center API for C#
 
-### Latest verison: 1.0.8
+### Latest verison: 2.1.0
 
 This API was made for the need of me constantly having to access data
-from the Storm Prediction Center, most notably the convective outlooks,
-tornado watches, severe thunderstorm watches, and mesoscale discussions.
+from the Storm Prediction Center (which is what this api was originally
+made for), most notably the convective outlooks, tornado watches,
+severe thunderstorm watches, and mesoscale discussions.
 
 The data that this API uses comes from the listed pages:
 1. https://www.spc.noaa.gov/gis/

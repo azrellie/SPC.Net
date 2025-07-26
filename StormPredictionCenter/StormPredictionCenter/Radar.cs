@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.IO.Compression;
+using Azrellie.Meteorology.NexradNet.Level3;
+using SkiaSharp;
 
 namespace Azrellie.Meteorology.SPC;
 
@@ -47,6 +49,145 @@ public class Radar(StormPredictionCenter? self)
 				radarStations.Add(radarStation);
 			}
 		return [.. radarStations];
+	}
+
+	private Dictionary<float, SKColor> colorTableFromProduct(Enums.MessageCode code)
+	{
+		switch (code)
+		{
+			case Enums.MessageCode.BaseReflectivityLongRange:
+			case Enums.MessageCode.BaseReflectivityShortRange:
+			case Enums.MessageCode.DigitalBaseReflectivity:
+			case Enums.MessageCode.DigitalHybridScanReflectivity:
+			case Enums.MessageCode.HighLayerCompositeReflectivity:
+			case Enums.MessageCode.HybridScanReflectivity:
+			case Enums.MessageCode.LegacyBaseReflectivityLongRange:
+			case Enums.MessageCode.SuperResolutionDigitalBaseReflectivity:
+				return new()
+				{
+					{1, new(0, 236, 236)},
+					{2, new(0, 160, 246)},
+					{3, new(0, 0, 246)},
+					{4, new(0, 255, 0)},
+					{5, new(0, 200, 0)},
+					{6, new(0, 144, 0)},
+					{7, new(255, 255, 0)},
+					{8, new(231, 192, 0)},
+					{9, new(255, 144, 0)},
+					{10, new(255, 0, 0)},
+					{11, new(214, 0, 0)},
+					{12, new(192, 0, 0)},
+					{13, new(255, 0, 255)},
+					{14, new(153, 85, 201)},
+					{15, new(255, 255, 255)}
+				};
+			case Enums.MessageCode.CompositeReflectivity1:
+			case Enums.MessageCode.CompositeReflectivity2:
+			case Enums.MessageCode.CompositeReflectivity3:
+			case Enums.MessageCode.CompositeReflectivity4:
+			case Enums.MessageCode.LayerCompositeReflectivity:
+			case Enums.MessageCode.LegacyBaseReflectivity1:
+			case Enums.MessageCode.LegacyBaseReflectivity2:
+			case Enums.MessageCode.LegacyBaseReflectivity3:
+			case Enums.MessageCode.LegacyBaseReflectivity4:
+			case Enums.MessageCode.LegacyBaseReflectivity6:
+			case Enums.MessageCode.LowLayerCompositeReflectivity:
+			case Enums.MessageCode.MidlayerCompositeReflectivity:
+			case Enums.MessageCode.UserSelectableLayerCompositeReflectivity:
+				return [];
+			default:
+				return [];
+		}
+	}
+
+	private void processPacket16(SKCanvas canvas, SKBitmap bmp, Level3 level3, SymbologyPacket16 p16, Dictionary<float, (SKColor, SKPath)> geometry)
+	{
+		var colorTable = colorTableFromProduct(level3.Header.MessageCode);
+		float noDataValue = 0;
+		float centerX = bmp.Width / 2f;
+		float centerY = bmp.Height / 2f;
+		float rotationOffset = 90;
+		float radarScale = 1;
+		foreach (Radial radial in p16.Radials)
+			if (radial is Radial255 r255)
+			{
+				float angleIncrement = 1 / (p16.Radials.Count / 360f);
+				float adjustedAngle = -MathF.Floor((-(MathF.Round(radial.StartAngle * 2, MidpointRounding.AwayFromZero) / 2) + rotationOffset) * 10) / 10;
+				float adjustedAngleNext = -MathF.Floor((-(MathF.Round((radial.StartAngle + angleIncrement) * 2, MidpointRounding.AwayFromZero) / 2) + rotationOffset) * 10) / 10;
+				float angle = Utils.degToRad(adjustedAngle);
+				float angleNext = Utils.degToRad(adjustedAngleNext);
+
+				for (int binIndex = 0; binIndex < r255.Bins.Length; binIndex++)
+				{
+					SKPath pixel = new();
+
+					float bin = r255.Bins[binIndex];
+					if (bin == noDataValue) continue;
+					float nextBinIndex = binIndex + 1;
+
+					float pixelXBottomRight = centerX + MathF.Cos(angle) * binIndex * radarScale;
+					float pixelYBottomRight = centerY + MathF.Sin(angle) * binIndex * radarScale;
+
+					float pixelXTopRight = centerX + MathF.Cos(angle) * nextBinIndex * radarScale;
+					float pixelYTopRight = centerY + MathF.Sin(angle) * nextBinIndex * radarScale;
+
+					float pixelXBottomLeft = centerX + MathF.Cos(angleNext) * binIndex * radarScale;
+					float pixelYBottomLeft = centerY + MathF.Sin(angleNext) * binIndex * radarScale;
+
+					float pixelXTopLeft = centerX + MathF.Cos(angleNext) * nextBinIndex * radarScale;
+					float pixelYTopLeft = centerY + MathF.Sin(angleNext) * nextBinIndex * radarScale;
+
+					pixel.MoveTo(pixelXBottomRight, pixelYBottomRight);
+					pixel.LineTo(pixelXBottomLeft, pixelYBottomLeft);
+					pixel.LineTo(pixelXTopLeft, pixelYTopLeft);
+					pixel.LineTo(pixelXTopRight, pixelYTopRight);
+
+					SKColor color;
+					if (level3.Header.MessageCode == Enums.MessageCode.SuperResolutionDigitalBaseReflectivity ||
+						level3.Header.MessageCode == Enums.MessageCode.BaseReflectivityLongRange ||
+						level3.Header.MessageCode == Enums.MessageCode.BaseReflectivityShortRange ||
+						level3.Header.MessageCode == Enums.MessageCode.DigitalBaseReflectivity ||
+						level3.Header.MessageCode == Enums.MessageCode.DigitalHybridScanReflectivity ||
+						level3.Header.MessageCode == Enums.MessageCode.HybridScanReflectivity ||
+						level3.Header.MessageCode == Enums.MessageCode.LegacyBaseReflectivity1 ||
+						level3.Header.MessageCode == Enums.MessageCode.LegacyBaseReflectivity2 ||
+						level3.Header.MessageCode == Enums.MessageCode.LegacyBaseReflectivity3 ||
+						level3.Header.MessageCode == Enums.MessageCode.LegacyBaseReflectivity4 ||
+						level3.Header.MessageCode == Enums.MessageCode.LegacyBaseReflectivity6 ||
+						level3.Header.MessageCode == Enums.MessageCode.LegacyBaseReflectivityLongRange)
+						color = colorTable[Utils.roundToSpecifiedValues(bin / 16.8f, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])];
+					else
+						color = colorTable[bin];
+					if (!geometry.TryAdd(bin, (color, pixel)))
+						geometry[bin].Item2.AddPath(pixel);
+				}
+			}
+	}
+
+	public string radarDataToImage(string file, int width, int height)
+	{
+		/*Dictionary<float, (SKColor, SKPath)> geometry = [];
+		SKBitmap bmp = new(width, height);
+		SKCanvas canvas = new(bmp);
+		canvas.Clear(SKColors.Transparent);
+		using FileStream fs = File.OpenRead(file);
+		BinaryReader reader = new(fs);
+		Level3 level3 = new(ref reader);
+		foreach (List<SymbologyPacket> packets in level3.ProductSymbology.SymbologyPackets)
+			foreach (SymbologyPacket packet in packets)
+				if (packet is SymbologyPacket16 p16)
+					processPacket16(canvas, bmp, level3, p16, geometry);
+		foreach (var geo in geometry)
+			canvas.DrawPath(geo.Value.Item2, new()
+			{
+				Color = geo.Value.Item1
+			});
+		SKData data = bmp.Encode(SKEncodedImageFormat.Png, 100);
+		string fileName = $"{level3.TextHeader.RadarStationId}_{level3.TextHeader.DataType}_{level3.ProductDescription.GenerationDateOfProduct}.png";
+		using FileStream img = File.OpenWrite(fileName);
+		data.SaveTo(img);
+		return fileName;*/
+		return string.Empty;
 	}
 
 	/// <summary>
