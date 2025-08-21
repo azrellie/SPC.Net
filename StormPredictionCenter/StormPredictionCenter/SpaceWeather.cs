@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Azrellie.Meteorology.SPC;
@@ -19,10 +19,10 @@ public class SpaceWeather(StormPredictionCenter? self)
 		swpcAurora.ForecastTime = DateTime.Parse((string)data["Forecast Time"]);
 		foreach (JArray d in data["coordinates"])
 		{
-			int aurora = (int)d[0];
-			int lng = (int)d[1];
-			int lat = (int)d[2];
-			swpcAurora.Data.Add(new(lng, lat, aurora));
+			int aurora = (int)d[2];
+			int lng = (int)d[0];
+			int lat = (int)d[1];
+			swpcAurora.Data.Add(new(lat, lng, aurora));
 		}
 		return swpcAurora;
 	}
