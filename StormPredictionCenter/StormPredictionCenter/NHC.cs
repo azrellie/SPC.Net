@@ -1,4 +1,4 @@
-﻿using SharpKml.Base;
+using SharpKml.Base;
 using SharpKml.Dom;
 using SharpKml.Engine;
 using System.Globalization;
@@ -460,19 +460,20 @@ public class NHC(StormPredictionCenter? self)
 							}
 							else if (placemark.Geometry is Point point)
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
-							foreach (Data data in placemark.ExtendedData.Data)
-								if (data.Name == "Disturbance")
-									disturbance.disturbanceIndex = byte.Parse(data.Value);
-								else if (data.Name == "2day_percentage")
-									disturbance.day2Percentage = data.Value;
-								else if (data.Name == "2day_category")
-									disturbance.day2Category = data.Value;
-								else if (data.Name == "7day_percentage")
-									disturbance.day7Percentage = data.Value;
-								else if (data.Name == "7day_category")
-									disturbance.day7Category = data.Value;
-								else if (data.Name == "Discussion")
-									disturbance.discussion = data.Value;
+							if (placemark.ExtendedData != null)
+								foreach (Data data in placemark.ExtendedData.Data)
+									if (data.Name == "Disturbance")
+										disturbance.disturbanceIndex = byte.Parse(data.Value);
+									else if (data.Name == "2day_percentage")
+										disturbance.day2Percentage = data.Value;
+									else if (data.Name == "2day_category")
+										disturbance.day2Category = data.Value;
+									else if (data.Name == "7day_percentage")
+										disturbance.day7Percentage = data.Value;
+									else if (data.Name == "7day_category")
+										disturbance.day7Category = data.Value;
+									else if (data.Name == "Discussion")
+										disturbance.discussion = data.Value;
 							nationalHurricaneCenterDisturbances.Add(disturbance);
 						}
 		}
@@ -507,19 +508,20 @@ public class NHC(StormPredictionCenter? self)
 							}
 							else if (placemark.Geometry is Point point)
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
-							foreach (Data data in placemark.ExtendedData.Data)
-								if (data.Name == "Disturbance")
-									disturbance.disturbanceIndex = byte.Parse(data.Value);
-								else if (data.Name == "2day_percentage")
-									disturbance.day2Percentage = data.Value;
-								else if (data.Name == "2day_category")
-									disturbance.day2Category = data.Value;
-								else if (data.Name == "7day_percentage")
-									disturbance.day7Percentage = data.Value;
-								else if (data.Name == "7day_category")
-									disturbance.day7Category = data.Value;
-								else if (data.Name == "Discussion")
-									disturbance.discussion = data.Value;
+							if (placemark.ExtendedData != null)
+								foreach (Data data in placemark.ExtendedData.Data)
+									if (data.Name == "Disturbance")
+										disturbance.disturbanceIndex = byte.Parse(data.Value);
+									else if (data.Name == "2day_percentage")
+										disturbance.day2Percentage = data.Value;
+									else if (data.Name == "2day_category")
+										disturbance.day2Category = data.Value;
+									else if (data.Name == "7day_percentage")
+										disturbance.day7Percentage = data.Value;
+									else if (data.Name == "7day_category")
+										disturbance.day7Category = data.Value;
+									else if (data.Name == "Discussion")
+										disturbance.discussion = data.Value;
 							nationalHurricaneCenterDisturbances.Add(disturbance);
 						}
 		}
@@ -556,22 +558,23 @@ public class NHC(StormPredictionCenter? self)
 							}
 							else if (placemark.Geometry is Point point)
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
-							foreach (Data data in placemark.ExtendedData.Data)
-								if (data.Name == "Disturbance")
-									disturbance.disturbanceIndex = byte.Parse(data.Value);
-								else if (data.Name == "2day_percentage")
-									disturbance.day2Percentage = data.Value;
-								else if (data.Name == "2day_category")
-									disturbance.day2Category = data.Value;
-								else if (data.Name == "7day_percentage")
-									disturbance.day7Percentage = data.Value;
-								else if (data.Name == "7day_category")
-									disturbance.day7Category = data.Value;
-								else if (data.Name == "Discussion")
-									disturbance.discussion = data.Value;
+							if (placemark.ExtendedData != null)
+								foreach (Data data in placemark.ExtendedData.Data)
+									if (data.Name == "Disturbance")
+										disturbance.disturbanceIndex = byte.Parse(data.Value);
+									else if (data.Name == "2day_percentage")
+										disturbance.day2Percentage = data.Value;
+									else if (data.Name == "2day_category")
+										disturbance.day2Category = data.Value;
+									else if (data.Name == "7day_percentage")
+										disturbance.day7Percentage = data.Value;
+									else if (data.Name == "7day_category")
+										disturbance.day7Category = data.Value;
+									else if (data.Name == "Discussion")
+										disturbance.discussion = data.Value;
 							nationalHurricaneCenterDisturbances.Add(disturbance);
 						}
 		}
 		return [..nationalHurricaneCenterDisturbances];
 	}
-}
+}	
