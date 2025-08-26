@@ -1,4 +1,4 @@
-﻿using GeoJSON.Net.Feature;
+using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using GeoJSON.Net;
 using Newtonsoft.Json.Linq;
@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 
 namespace Azrellie.Meteorology.SPC;
-
+// TODO: download county geometry from county wide alerts
 /// <summary>
 /// Retrieve warning data from the NWS.
 /// </summary>
@@ -44,13 +44,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
@@ -186,13 +184,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
@@ -247,6 +243,9 @@ public class Warnings(StormPredictionCenter? self)
 						stormPredictionCenterWarning.flashFloodDamageThreat = (string)property.Value[0];
 				}
 			}
+
+			stormPredictionCenterWarning.warningName = alert;
+			stormPredictionCenterWarnings.Add(stormPredictionCenterWarning);
 		}
 
 		return [..stormPredictionCenterWarnings];
@@ -424,6 +423,9 @@ public class Warnings(StormPredictionCenter? self)
 					}
 				}
 			}
+
+			stormPredictionCenterWarning.warningName = alert;
+			stormPredictionCenterWarnings.Add(stormPredictionCenterWarning);
 		}
 
 		return [..stormPredictionCenterWarnings];
@@ -453,13 +455,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
@@ -510,6 +510,9 @@ public class Warnings(StormPredictionCenter? self)
 					}
 				}
 			}
+
+			stormPredictionCenterWarning.warningName = alert;
+			stormPredictionCenterWarnings.Add(stormPredictionCenterWarning);
 		}
 
 		return [..stormPredictionCenterWarnings];
@@ -539,13 +542,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
@@ -628,13 +629,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
@@ -717,13 +716,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
@@ -806,13 +803,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
@@ -879,8 +874,10 @@ public class Warnings(StormPredictionCenter? self)
 	public StormPredictionCenterWarning[] getLatestWarnings(string[]? filter = null, bool includeCustomWarnings = false)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		string url = "https://api.weather.gov/alerts/active?event=";
+		string url = "https://api.weather.gov/alerts/active";
 		if (filter != null)
+		{
+			url += "?event=";
 			for (int i = 0; i < filter.Length; i++)
 			{
 				string alert = filter[i];
@@ -888,6 +885,7 @@ public class Warnings(StormPredictionCenter? self)
 				if (i < filter.Length - 1)
 					url += ",";
 			}
+		}
 		FeatureCollection data = JsonConvert.DeserializeObject<FeatureCollection>(Utils.downloadString(url));
 		if (data == null) return [];
 		foreach (var feature in data.Features)
@@ -909,13 +907,11 @@ public class Warnings(StormPredictionCenter? self)
 				stormPredictionCenterWarning.affectedCounties = feature.Properties["affectedZones"] as List<string>;
 
 			// process times and other data
-			string id = (string)feature.Properties["id"];
-			if (id != null)
-				stormPredictionCenterWarning.id = id;
-			stormPredictionCenterWarning.sent = ((DateTime)feature.Properties["sent"]).ToUniversalTime();
-			stormPredictionCenterWarning.effective = ((DateTime)feature.Properties["effective"]).ToUniversalTime();
-			stormPredictionCenterWarning.onset = ((DateTime)feature.Properties["onset"]).ToUniversalTime();
-			stormPredictionCenterWarning.expires = ((DateTime)feature.Properties["expires"]).ToUniversalTime();
+			stormPredictionCenterWarning.id = feature.Properties["id"] == null ? string.Empty : (string)feature.Properties["id"];
+			stormPredictionCenterWarning.sent = feature.Properties["sent"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["sent"]).ToUniversalTime();
+			stormPredictionCenterWarning.effective = feature.Properties["effective"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["effective"]).ToUniversalTime();
+			stormPredictionCenterWarning.onset = feature.Properties["onset"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["onset"]).ToUniversalTime();
+			stormPredictionCenterWarning.expires = feature.Properties["expires"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["expires"]).ToUniversalTime();
 			stormPredictionCenterWarning.ends = feature.Properties["ends"] == null ? DateTime.MinValue : ((DateTime)feature.Properties["ends"]).ToUniversalTime();
 
 			// other data
