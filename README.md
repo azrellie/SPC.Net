@@ -1,5 +1,14 @@
 ### *This repo has been renamed to SPC.Net previously named StormPredictionCenter.*
 
+# Notice
+On March 3rd, the SPC will be updating their convective outlook graphics to include conditional intensity groups.
+These will replace the significant area and therefore require changes to this API.
+Sample data of the new outlooks (and graphics) have been provided for developers to provide time to make changes before its rolled out.
+The SPC will also be adding 75% and 90% wind risks in addition to conditional intensity groups.
+Updates to this API regarding these changes will happen the same day the SPC rolls out their changes.
+
+More info can be found here: https://www.spc.noaa.gov/exper/conditional-intensity-information/
+
 # Storm Prediction Center API for C#
 
 ### Latest verison: 2.1.4
