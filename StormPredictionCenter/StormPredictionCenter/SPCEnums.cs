@@ -25,7 +25,16 @@ public enum WindHailRisk
 	_15Percent = 15,
 	_30Percent = 30,
 	_45Percent = 45,
-	_60Percent = 60
+	_60Percent = 60,
+	_75Percent = 75, // values here and beyond are only valid for wind
+	_90Percent = 90
+}
+public enum ConditionalIntensityGroup
+{
+	None = 0,
+	CIG1 = 2,
+	CIG2 = 4,
+	CIG3 = 6
 }
 public enum RadarProduct
 {

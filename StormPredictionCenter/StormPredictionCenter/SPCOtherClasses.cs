@@ -5,6 +5,9 @@ namespace Azrellie.Meteorology.SPC;
 
 public record RiskArea
 {
+	/// <summary>
+	/// To get the risk type, cast one of the risk type enums to this value
+	/// </summary>
 	public object riskType = 0;
 	public DateTime valid = DateTime.UnixEpoch;
 	public DateTime expire = DateTime.UnixEpoch;
@@ -13,9 +16,21 @@ public record RiskArea
 	public string label2 = string.Empty;
 	public Color stroke = Color.White;
 	public Color fill = Color.White;
+	/// <summary>
+	/// This property has been considered obsolete due to it being replaced by conditional intensity groups.
+	/// </summary>
 	public bool isSignificant = false;
+	public ConditionalIntensityGroup cig = ConditionalIntensityGroup.None;
 	public List<SPCPolygon> polygons = [];
-	public override string ToString() => $"{label2} | {label} | Expires: {expire}, Issued: {issue}, Valid: {valid}";
+	public override string ToString()
+	{
+		string sigOrCig = string.Empty;
+		if (isSignificant)
+			sigOrCig = "Sig ";
+		if (cig != ConditionalIntensityGroup.None)
+			sigOrCig = cig.ToString() + ' ';
+		return $"{sigOrCig}{label2} | {label} | Expires: {expire}, Issued: {issue}, Valid: {valid}";
+	}
 }
 
 public record StormPredictionCenterMesoscaleDiscussion

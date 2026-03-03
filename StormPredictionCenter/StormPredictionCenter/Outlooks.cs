@@ -245,7 +245,6 @@ public class Outlooks(StormPredictionCenter? self)
 
 		string stringData = await Utils.downloadStringAsync(url);
 		JObject? parsedData = JsonConvert.DeserializeObject(stringData) as JObject;
-
 		List<RiskArea> spcObject = [];
 
 		foreach (var feature in parsedData["features"])
@@ -255,19 +254,19 @@ public class Outlooks(StormPredictionCenter? self)
 
 			TornadoRisk riskType = TornadoRisk._2Percent;
 			int DN = (int)feature["properties"]["DN"];
-			if (DN == 0.02)
+			if (DN == 2)
 				riskType = TornadoRisk._2Percent;
-			else if (DN == 0.05)
+			else if (DN == 5)
 				riskType = TornadoRisk._5Percent;
-			else if (DN == 0.1)
+			else if (DN == 10)
 				riskType = TornadoRisk._10Percent;
-			else if (DN == 0.15)
+			else if (DN == 15)
 				riskType = TornadoRisk._15Percent;
-			else if (DN == 0.3)
+			else if (DN == 30)
 				riskType = TornadoRisk._30Percent;
-			else if (DN == 0.45)
+			else if (DN == 45)
 				riskType = TornadoRisk._45Percent;
-			else if (DN == 0.6)
+			else if (DN == 60)
 				riskType = TornadoRisk._60Percent;
 			riskArea.riskType = riskType;
 
@@ -300,6 +299,14 @@ public class Outlooks(StormPredictionCenter? self)
 			riskArea.stroke = Utils.hexToRgb((string)feature["properties"]["stroke"]);
 			riskArea.fill = Utils.hexToRgb((string)feature["properties"]["fill"]);
 			riskArea.isSignificant = riskArea.label == "SIGN";
+			var cig = ConditionalIntensityGroup.None;
+			if (riskArea.label == "CIG1")
+				cig = ConditionalIntensityGroup.CIG1;
+			else if (riskArea.label == "CIG2")
+				cig = ConditionalIntensityGroup.CIG2;
+			else if (riskArea.label == "CIG3")
+				cig = ConditionalIntensityGroup.CIG3;
+			riskArea.cig = cig;
 
 			// iterate through the risk areas polygons/coordinates
 			var polygons = feature["geometry"]["coordinates"];
@@ -382,16 +389,20 @@ public class Outlooks(StormPredictionCenter? self)
 
 			WindHailRisk riskType = WindHailRisk._5Percent;
 			int DN = (int)feature["properties"]["DN"];
-			if (DN == 0.05)
+			if (DN == 5)
 				riskType = WindHailRisk._5Percent;
-			else if (DN == 0.15)
+			else if (DN == 15)
 				riskType = WindHailRisk._15Percent;
-			else if (DN == 0.3)
+			else if (DN == 30)
 				riskType = WindHailRisk._30Percent;
-			else if (DN == 0.45)
+			else if (DN == 45)
 				riskType = WindHailRisk._45Percent;
-			else if (DN == 0.6)
+			else if (DN == 60)
 				riskType = WindHailRisk._60Percent;
+			else if (DN == 75)
+				riskType = WindHailRisk._75Percent;
+			else if (DN == 90)
+				riskType = WindHailRisk._90Percent;
 			riskArea.riskType = riskType;
 
 			// process valid date
@@ -423,6 +434,14 @@ public class Outlooks(StormPredictionCenter? self)
 			riskArea.stroke = Utils.hexToRgb((string)feature["properties"]["stroke"]);
 			riskArea.fill = Utils.hexToRgb((string)feature["properties"]["fill"]);
 			riskArea.isSignificant = riskArea.label == "SIGN";
+			var cig = ConditionalIntensityGroup.None;
+			if (riskArea.label == "CIG1")
+				cig = ConditionalIntensityGroup.CIG1;
+			else if (riskArea.label == "CIG2")
+				cig = ConditionalIntensityGroup.CIG2;
+			else if (riskArea.label == "CIG3")
+				cig = ConditionalIntensityGroup.CIG3;
+			riskArea.cig = cig;
 
 			// iterate through the risk areas polygons/coordinates
 			var polygons = feature["geometry"]["coordinates"];
@@ -504,15 +523,15 @@ public class Outlooks(StormPredictionCenter? self)
 
 			WindHailRisk riskType = WindHailRisk._5Percent;
 			int DN = (int)feature["properties"]["DN"];
-			if (DN == 0.05)
+			if (DN == 5)
 				riskType = WindHailRisk._5Percent;
-			else if (DN == 0.15)
+			else if (DN == 15)
 				riskType = WindHailRisk._15Percent;
-			else if (DN == 0.3)
+			else if (DN == 30)
 				riskType = WindHailRisk._30Percent;
-			else if (DN == 0.45)
+			else if (DN == 45)
 				riskType = WindHailRisk._45Percent;
-			else if (DN == 0.6)
+			else if (DN == 60)
 				riskType = WindHailRisk._60Percent;
 			riskArea.riskType = riskType;
 
@@ -545,6 +564,14 @@ public class Outlooks(StormPredictionCenter? self)
 			riskArea.stroke = Utils.hexToRgb((string)feature["properties"]["stroke"]);
 			riskArea.fill = Utils.hexToRgb((string)feature["properties"]["fill"]);
 			riskArea.isSignificant = riskArea.label == "SIGN";
+			var cig = ConditionalIntensityGroup.None;
+			if (riskArea.label == "CIG1")
+				cig = ConditionalIntensityGroup.CIG1;
+			else if (riskArea.label == "CIG2")
+				cig = ConditionalIntensityGroup.CIG2;
+			else if (riskArea.label == "CIG3")
+				cig = ConditionalIntensityGroup.CIG3;
+			riskArea.cig = cig;
 
 			// iterate through the risk areas polygons/coordinates
 			var polygons = feature["geometry"]["coordinates"];
@@ -1132,19 +1159,19 @@ public class Outlooks(StormPredictionCenter? self)
 
 			TornadoRisk riskType = TornadoRisk._2Percent;
 			int DN = (int)feature["properties"]["DN"];
-			if (DN == 0.02)
+			if (DN == 2)
 				riskType = TornadoRisk._2Percent;
-			else if (DN == 0.05)
+			else if (DN == 5)
 				riskType = TornadoRisk._5Percent;
-			else if (DN == 0.1)
+			else if (DN == 10)
 				riskType = TornadoRisk._10Percent;
-			else if (DN == 0.15)
+			else if (DN == 15)
 				riskType = TornadoRisk._15Percent;
-			else if (DN == 0.3)
+			else if (DN == 30)
 				riskType = TornadoRisk._30Percent;
-			else if (DN == 0.45)
+			else if (DN == 45)
 				riskType = TornadoRisk._45Percent;
-			else if (DN == 0.6)
+			else if (DN == 60)
 				riskType = TornadoRisk._60Percent;
 			riskArea.riskType = riskType;
 
@@ -1177,6 +1204,14 @@ public class Outlooks(StormPredictionCenter? self)
 			riskArea.stroke = Utils.hexToRgb((string)feature["properties"]["stroke"]);
 			riskArea.fill = Utils.hexToRgb((string)feature["properties"]["fill"]);
 			riskArea.isSignificant = riskArea.label == "SIGN";
+			var cig = ConditionalIntensityGroup.None;
+			if (riskArea.label == "CIG1")
+				cig = ConditionalIntensityGroup.CIG1;
+			else if (riskArea.label == "CIG2")
+				cig = ConditionalIntensityGroup.CIG2;
+			else if (riskArea.label == "CIG3")
+				cig = ConditionalIntensityGroup.CIG3;
+			riskArea.cig = cig;
 
 			// iterate through the risk areas polygons/coordinates
 			var polygons = feature["geometry"]["coordinates"];
@@ -1251,16 +1286,20 @@ public class Outlooks(StormPredictionCenter? self)
 
 			WindHailRisk riskType = WindHailRisk._5Percent;
 			int DN = (int)feature["properties"]["DN"];
-			if (DN == 0.05)
+			if (DN == 5)
 				riskType = WindHailRisk._5Percent;
-			else if (DN == 0.15)
+			else if (DN == 15)
 				riskType = WindHailRisk._15Percent;
-			else if (DN == 0.3)
+			else if (DN == 30)
 				riskType = WindHailRisk._30Percent;
-			else if (DN == 0.45)
+			else if (DN == 45)
 				riskType = WindHailRisk._45Percent;
-			else if (DN == 0.6)
+			else if (DN == 60)
 				riskType = WindHailRisk._60Percent;
+			else if (DN == 75)
+				riskType = WindHailRisk._75Percent;
+			else if (DN == 90)
+				riskType = WindHailRisk._90Percent;
 			riskArea.riskType = riskType;
 
 			// process valid date
@@ -1292,6 +1331,14 @@ public class Outlooks(StormPredictionCenter? self)
 			riskArea.stroke = Utils.hexToRgb((string)feature["properties"]["stroke"]);
 			riskArea.fill = Utils.hexToRgb((string)feature["properties"]["fill"]);
 			riskArea.isSignificant = riskArea.label == "SIGN";
+			var cig = ConditionalIntensityGroup.None;
+			if (riskArea.label == "CIG1")
+				cig = ConditionalIntensityGroup.CIG1;
+			else if (riskArea.label == "CIG2")
+				cig = ConditionalIntensityGroup.CIG2;
+			else if (riskArea.label == "CIG3")
+				cig = ConditionalIntensityGroup.CIG3;
+			riskArea.cig = cig;
 
 			// iterate through the risk areas polygons/coordinates
 			var polygons = feature["geometry"]["coordinates"];
@@ -1365,15 +1412,15 @@ public class Outlooks(StormPredictionCenter? self)
 
 			WindHailRisk riskType = WindHailRisk._5Percent;
 			int DN = (int)feature["properties"]["DN"];
-			if (DN == 0.05)
+			if (DN == 5)
 				riskType = WindHailRisk._5Percent;
-			else if (DN == 0.15)
+			else if (DN == 15)
 				riskType = WindHailRisk._15Percent;
-			else if (DN == 0.3)
+			else if (DN == 30)
 				riskType = WindHailRisk._30Percent;
-			else if (DN == 0.45)
+			else if (DN == 45)
 				riskType = WindHailRisk._45Percent;
-			else if (DN == 0.6)
+			else if (DN == 60)
 				riskType = WindHailRisk._60Percent;
 			riskArea.riskType = riskType;
 
@@ -1406,6 +1453,14 @@ public class Outlooks(StormPredictionCenter? self)
 			riskArea.stroke = Utils.hexToRgb((string)feature["properties"]["stroke"]);
 			riskArea.fill = Utils.hexToRgb((string)feature["properties"]["fill"]);
 			riskArea.isSignificant = riskArea.label == "SIGN";
+			var cig = ConditionalIntensityGroup.None;
+			if (riskArea.label == "CIG1")
+				cig = ConditionalIntensityGroup.CIG1;
+			else if (riskArea.label == "CIG2")
+				cig = ConditionalIntensityGroup.CIG2;
+			else if (riskArea.label == "CIG3")
+				cig = ConditionalIntensityGroup.CIG3;
+			riskArea.cig = cig;
 
 			// iterate through the risk areas polygons/coordinates
 			var polygons = feature["geometry"]["coordinates"];

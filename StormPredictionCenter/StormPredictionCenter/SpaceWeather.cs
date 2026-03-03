@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Azrellie.Meteorology.SPC;
@@ -14,7 +14,7 @@ public class SpaceWeather(StormPredictionCenter? self)
 	public async Task<SWPCAurora> getAuroraForecast()
 	{
 		SWPCAurora swpcAurora = new();
-		JObject? data = JsonConvert.DeserializeObject<JObject>(await Utils.downloadStringAsync("https://services.swpc.noaa.gov/json/ovation_aurora_latest.json"));
+		JObject data = JsonConvert.DeserializeObject<JObject>(await Utils.downloadStringAsync("https://services.swpc.noaa.gov/json/ovation_aurora_latest.json"));
 		swpcAurora.ObservationTime = DateTime.Parse((string)data["Observation Time"]);
 		swpcAurora.ForecastTime = DateTime.Parse((string)data["Forecast Time"]);
 		foreach (JArray d in data["coordinates"])

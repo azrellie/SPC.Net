@@ -1,4 +1,4 @@
-using SharpKml.Base;
+﻿using SharpKml.Base;
 using SharpKml.Dom;
 using SharpKml.Engine;
 using System.Globalization;
@@ -577,4 +577,4 @@ public class NHC(StormPredictionCenter? self)
 		}
 		return [..nationalHurricaneCenterDisturbances];
 	}
-}	
+}

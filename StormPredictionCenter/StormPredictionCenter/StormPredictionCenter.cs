@@ -55,6 +55,15 @@ using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 #pragma warning disable CS8767
 #pragma warning disable CS1591
 
+/*
+change notes:
+now using geojson.net for geojson reading
+added current storm reports gathering
+added space weather prediction center
+made a majority of the methods async
+lots of bug fixes
+*/
+
 namespace Azrellie.Meteorology.SPC;
 
 public class StormPredictionCenter
@@ -83,6 +92,7 @@ public class StormPredictionCenter
 	public Radar radar;
 	public Events events;
 	public SpaceWeather spaceWeather;
+	public Radio radio;
 
 	internal void debugLog(dynamic message)
 	{
@@ -101,6 +111,7 @@ public class StormPredictionCenter
 		radar = new(this);
 		events = new(this);
 		spaceWeather = new(this);
+		radio = new(this);
 	}
 }
 

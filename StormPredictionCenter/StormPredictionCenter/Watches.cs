@@ -1,11 +1,12 @@
 ﻿using HtmlAgilityPack;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SharpKml.Base;
 using SharpKml.Dom;
-using System.Globalization;
 using SharpKml.Engine;
 using System.Collections.Concurrent;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using KMLPolygon = SharpKml.Dom.Polygon;
 
 namespace Azrellie.Meteorology.SPC;
@@ -308,7 +309,7 @@ public class Watches(StormPredictionCenter? self)
 					stormPredictionCenterWatchBox.polygon = polygon;
 					stormPredictionCenterWatchBox.watchCenter = [polygon.coordinates.Average(x => x[1]), polygon.coordinates.Average(x => x[0])];
 					stormPredictionCenterWatchBox.watchName = feature.Name;
-					stormPredictionCenterWatchBox.watchNumber = int.Parse(feature.Name[2..6]);
+					stormPredictionCenterWatchBox.watchNumber = Regex.Matches(feature.Name, @"\d+").Select(m => int.Parse(m.Value)).ToArray()[0];
 					stormPredictionCenterWatchBox.isPDS = feature.Name.Contains("pds", StringComparison.CurrentCultureIgnoreCase) || feature.Name.Contains("particularly dangerous situation", StringComparison.CurrentCultureIgnoreCase);
 					stormPredictionCenterWatchBox.watchType = feature.StyleUrl.ToString().Trim('#');
 				}

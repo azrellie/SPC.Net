@@ -24,7 +24,8 @@ public class Events
 	/// <summary>
 	/// Fired whenever the National Weather Service issues a new warning. Only used for convective and some hydrologic warnings.
 	/// </summary>
-	public event WarningIssueEventHandler warningIssued;
+	public event WarningIssueEventHandler convectiveWarningIssued;
+	public event WarningIssueEventHandler winterWarningIssued;
 
 	/// <summary>
 	/// Allows events to be enabled.
@@ -139,22 +140,19 @@ public class Events
 			mesoscaleDiscussionIssued?.Invoke(this, [..newMds]);
 	}
 
-	private void listenForWarnings()
+	private async Task listenForConvectiveWarnings()
 	{
-		foreach (var warning in warnings.getLatestWarnings(["tornado warning", "severe thunderstorm warning", "tornado watch", "severe thunderstorm watch", "special weather statement", "severe weather statement", "special marine warning", "marine weather statement", "ice storm warning", "snow squall warning"]))
+		string[] filter = ["tornado warning", "severe thunderstorm warning", "tornado watch", "severe thunderstorm watch", "special weather statement", "severe weather statement", "special marine warning", "marine weather statement"];
+		foreach (var warning in await warnings.getLatestWarnings(filter))
 		{
 			TimeSpan timeDiff = new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) - warning.sent;
-			if (timeDiff.TotalHours >= 6 && (warning.warningName == "Special Weather Statement" && warning.description.Contains("thunderstorm", StringComparison.InvariantCultureIgnoreCase))) // if the registered warning is older than 6 hours, remove it
-			{
-				//parent?.debugLog($"Remove {warning.warningName} from the list because its more than 6 hours old.");
+			if (timeDiff.TotalHours >= 6 && warning.warningName == "Special Weather Statement" && warning.description.Contains("thunderstorm", StringComparison.InvariantCultureIgnoreCase)) // if the registered warning is older than 6 hours, remove it
 				lastWarnings.Remove(warning.id);
-			}
 
 			if (new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) >= warning.sent) continue; // dont fire if the warning was issued before we started listening for events
 			if (lastWarnings.Contains(warning.id)) continue; // dont fire if the warning is already registered in the last warnings list
 
-			if (!lastWarnings.Contains(warning.id))
-				lastWarnings.Add(warning.id);
+			lastWarnings.Add(warning.id);
 
 			WarningEventType eventType = warning.eventType;
 			if (warning.description.Contains("below severe limits", StringComparison.OrdinalIgnoreCase) || warning.description.Contains("allowed to expire", StringComparison.OrdinalIgnoreCase))
@@ -163,7 +161,32 @@ public class Events
 				eventType = WarningEventType.Cancel;
 
 			parent?.debugLog($"New alert {warning.warningName} has been issued.");
-			warningIssued?.Invoke(this, warning, eventType);
+			convectiveWarningIssued?.Invoke(this, warning, eventType);
+		}
+	}
+
+	private async Task listenForWinterWarnings()
+	{
+		string[] filter = ["ice storm warning", "snow squall warning", "winter storm warning", "winter storm watch", "extreme cold warning", "cold weather advisory", "blizzard warning", "winter weather advisory", "extreme cold watch", "lake effect snow warning"];
+		foreach (var warning in await warnings.getLatestWarnings(filter))
+		{
+			TimeSpan timeDiff = new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) - warning.sent;
+			if (timeDiff.TotalHours >= 6 && warning.warningName == "Special Weather Statement" && warning.description.Contains("thunderstorm", StringComparison.InvariantCultureIgnoreCase)) // if the registered warning is older than 6 hours, remove it
+				lastWarnings.Remove(warning.id);
+
+			if (new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) >= warning.sent) continue; // dont fire if the warning was issued before we started listening for events
+			if (lastWarnings.Contains(warning.id)) continue; // dont fire if the warning is already registered in the last warnings list
+
+			lastWarnings.Add(warning.id);
+
+			WarningEventType eventType = warning.eventType;
+			if (warning.description.Contains("below severe limits", StringComparison.OrdinalIgnoreCase) || warning.description.Contains("allowed to expire", StringComparison.OrdinalIgnoreCase))
+				eventType = WarningEventType.Update;
+			if (warning.description.Contains("canceled", StringComparison.OrdinalIgnoreCase) || warning.description.Contains("cancelled", StringComparison.OrdinalIgnoreCase))
+				eventType = WarningEventType.Cancel;
+
+			parent?.debugLog($"New alert {warning.warningName} has been issued.");
+			winterWarningIssued?.Invoke(this, warning, eventType);
 		}
 	}
 
@@ -178,9 +201,11 @@ public class Events
 			if (watchIssued != null)
 				await listenForConvectiveWatches();
 			if (mesoscaleDiscussionIssued != null)
-				listenForMesoscaleDiscussions();
-			if (warningIssued != null)
-				listenForWarnings();
+				await listenForMesoscaleDiscussions();
+			if (winterWarningIssued != null)
+				await listenForWinterWarnings();
+			if (convectiveWarningIssued != null)
+				await listenForConvectiveWarnings();
 		};
 		timer.Start();
 		parent?.debugLog("Events timer has started.");
