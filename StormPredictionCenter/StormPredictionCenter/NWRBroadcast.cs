@@ -1,6 +1,6 @@
 ﻿namespace Azrellie.Meteorology.SPC;
 
-public class NWRBroadcast
+public record NWRBroadcast
 {
 	public string StateAbbreviation { get; set; }
 	public string State { get; set; }

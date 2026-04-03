@@ -1,6 +1,6 @@
 # Storm Prediction Center API for C#
 
-### Latest verison: 2.1.4
+### Latest verison: 2.2.2
 
 This API was made for the need of me constantly having to access data
 from the Storm Prediction Center (which is what this api was originally

@@ -45,45 +45,48 @@ public class Watches(StormPredictionCenter? self)
 
 			var countyTasks = ((JArray)alert["properties"]["affectedZones"]).Select(async countyAffected =>
 			{
-				if (countyAffected == null) return;
-
-				// download county data
-				string countyJson = await Utils.downloadStringAsync((string)countyAffected);
-				if (string.IsNullOrEmpty(countyJson)) return;
-				parent?.debugLog("Downloading county data " + countyAffected);
-
-				JObject? county = JsonConvert.DeserializeObject(countyJson) as JObject;
-				if (county?["geometry"] == null) return;
-
-				string geometryType = (string)county["geometry"]["type"];
-				var polygonCoordinates = county["geometry"]["coordinates"];
-				CountyInfo countyInfo = new();
-				SPCPolygon polygon = new();
-
-				// process polygon or multipolygon
-				if (geometryType == "Polygon")
-					foreach (var coordinate in polygonCoordinates[0])
-						polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
-				else if (geometryType == "MultiPolygon")
-					foreach (var multiPolygon in polygonCoordinates)
-						foreach (var subPolygon in multiPolygon)
-							foreach (var coordinate in subPolygon)
-								polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
-
-				// populate county info
-				countyInfo.id = (string)county["properties"]["id"];
-				countyInfo.name = (string)county["properties"]["name"];
-				countyInfo.state = (string)county["properties"]["state"];
-				foreach (string forecastOffice in county["properties"]["forecastOffices"])
-					countyInfo.forecastOffices.Add(forecastOffice);
-				countyInfo.timeZone = (string)county["properties"]["timeZone"][0];
-				countyInfo.geometry = polygon;
-
-				// add county info to the watch
-				lock (stormPredictionCenterWatch)
+				try
 				{
-					stormPredictionCenterWatch.counties.Add(countyInfo);
-				}
+					if (countyAffected == null) return;
+
+					// download county data
+					string countyJson = await Utils.downloadStringAsync((string)countyAffected);
+					if (string.IsNullOrEmpty(countyJson)) return;
+					parent?.debugLog("Downloading county data " + countyAffected);
+
+					JObject? county = JsonConvert.DeserializeObject(countyJson) as JObject;
+					if (county?["geometry"] == null) return;
+
+					string geometryType = (string)county["geometry"]["type"];
+					var polygonCoordinates = county["geometry"]["coordinates"];
+					CountyInfo countyInfo = new();
+					SPCPolygon polygon = new();
+
+					// process polygon or multipolygon
+					if (geometryType == "Polygon")
+						foreach (var coordinate in polygonCoordinates[0])
+							polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
+					else if (geometryType == "MultiPolygon")
+						foreach (var multiPolygon in polygonCoordinates)
+							foreach (var subPolygon in multiPolygon)
+								foreach (var coordinate in subPolygon)
+									polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
+
+					// populate county info
+					countyInfo.id = (string)county["properties"]["id"];
+					countyInfo.name = (string)county["properties"]["name"];
+					countyInfo.state = (string)county["properties"]["state"];
+					foreach (string forecastOffice in county["properties"]["forecastOffices"])
+						countyInfo.forecastOffices.Add(forecastOffice);
+					countyInfo.timeZone = (string)county["properties"]["timeZone"][0];
+					countyInfo.geometry = polygon;
+
+					// add county info to the watch
+					lock (stormPredictionCenterWatch)
+					{
+						stormPredictionCenterWatch.counties.Add(countyInfo);
+					}
+				}catch{}
 			});
 
 			await Task.WhenAll(countyTasks);
@@ -110,7 +113,14 @@ public class Watches(StormPredictionCenter? self)
 				stormPredictionCenterWatch.status = WarningEventType.Error;
 			stormPredictionCenterWatch.watchNumber = watchNumber;
 			stormPredictionCenterWatch.watchType = "Severe Thunderstorm Watch";
-			stormPredictionCenterWatch.watchHazards = await getWatchRisks(watchNumber, DateTime.UtcNow.Year);
+			try
+			{
+				stormPredictionCenterWatch.watchHazards = await getWatchRisks(watchNumber, DateTime.UtcNow.Year);
+			}
+			catch
+			{
+				stormPredictionCenterWatch.watchHazards = new();
+			}
 
 			lock (stormPredictionCenterWatches)
 			{
@@ -135,8 +145,8 @@ public class Watches(StormPredictionCenter? self)
 					center[1] += point[0];
 					pointCount++;
 				}
-			center[0] /= pointCount;
-			center[1] /= pointCount;
+			center[0] /= pointCount == 0 ? 1 : pointCount;
+			center[1] /= pointCount == 0 ? 1 : pointCount;
 			watch.Value.watchCenter = center;
 		}
 
@@ -163,45 +173,48 @@ public class Watches(StormPredictionCenter? self)
 
 			var countyTasks = ((JArray)alert["properties"]["affectedZones"]).Select(async countyAffected =>
 			{
-				if (countyAffected == null) return;
-
-				// download county data
-				string countyJson = await Utils.downloadStringAsync((string)countyAffected);
-				if (string.IsNullOrEmpty(countyJson)) return;
-				parent?.debugLog("Downloading county data " + countyAffected);
-
-				JObject? county = JsonConvert.DeserializeObject(countyJson) as JObject;
-				if (county?["geometry"] == null) return;
-
-				string geometryType = (string)county["geometry"]["type"];
-				var polygonCoordinates = county["geometry"]["coordinates"];
-				CountyInfo countyInfo = new();
-				SPCPolygon polygon = new();
-
-				// process polygon or multipolygon
-				if (geometryType == "Polygon")
-					foreach (var coordinate in polygonCoordinates[0])
-						polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
-				else if (geometryType == "MultiPolygon")
-					foreach (var multiPolygon in polygonCoordinates)
-						foreach (var subPolygon in multiPolygon)
-							foreach (var coordinate in subPolygon)
-								polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
-
-				// populate county info
-				countyInfo.id = (string)county["properties"]["id"];
-				countyInfo.name = (string)county["properties"]["name"];
-				countyInfo.state = (string)county["properties"]["state"];
-				foreach (string forecastOffice in county["properties"]["forecastOffices"])
-					countyInfo.forecastOffices.Add(forecastOffice);
-				countyInfo.timeZone = (string)county["properties"]["timeZone"][0];
-				countyInfo.geometry = polygon;
-
-				// add county info to the watch
-				lock (stormPredictionCenterWatch)
+				try
 				{
-					stormPredictionCenterWatch.counties.Add(countyInfo);
-				}
+					if (countyAffected == null) return;
+
+					// download county data
+					string countyJson = await Utils.downloadStringAsync((string)countyAffected);
+					if (string.IsNullOrEmpty(countyJson)) return;
+					parent?.debugLog("Downloading county data " + countyAffected);
+
+					JObject? county = JsonConvert.DeserializeObject(countyJson) as JObject;
+					if (county?["geometry"] == null) return;
+
+					string geometryType = (string)county["geometry"]["type"];
+					var polygonCoordinates = county["geometry"]["coordinates"];
+					CountyInfo countyInfo = new();
+					SPCPolygon polygon = new();
+
+					// process polygon or multipolygon
+					if (geometryType == "Polygon")
+						foreach (var coordinate in polygonCoordinates[0])
+							polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
+					else if (geometryType == "MultiPolygon")
+						foreach (var multiPolygon in polygonCoordinates)
+							foreach (var subPolygon in multiPolygon)
+								foreach (var coordinate in subPolygon)
+									polygon.coordinates.Add([(double)coordinate[0], (double)coordinate[1]]);
+
+					// populate county info
+					countyInfo.id = (string)county["properties"]["id"];
+					countyInfo.name = (string)county["properties"]["name"];
+					countyInfo.state = (string)county["properties"]["state"];
+					foreach (string forecastOffice in county["properties"]["forecastOffices"])
+						countyInfo.forecastOffices.Add(forecastOffice);
+					countyInfo.timeZone = (string)county["properties"]["timeZone"][0];
+					countyInfo.geometry = polygon;
+
+					// add county info to the watch
+					lock (stormPredictionCenterWatch)
+					{
+						stormPredictionCenterWatch.counties.Add(countyInfo);
+					}
+				}catch{}
 			});
 
 			await Task.WhenAll(countyTasks);
@@ -228,7 +241,14 @@ public class Watches(StormPredictionCenter? self)
 				stormPredictionCenterWatch.status = WarningEventType.Error;
 			stormPredictionCenterWatch.watchNumber = watchNumber;
 			stormPredictionCenterWatch.watchType = "Tornado Watch";
-			stormPredictionCenterWatch.watchHazards = await getWatchRisks(watchNumber, DateTime.UtcNow.Year);
+			try
+			{
+				stormPredictionCenterWatch.watchHazards = await getWatchRisks(watchNumber, DateTime.UtcNow.Year);
+			}
+			catch
+			{
+				stormPredictionCenterWatch.watchHazards = new();
+			}
 
 			lock (stormPredictionCenterWatches)
 			{
@@ -253,8 +273,8 @@ public class Watches(StormPredictionCenter? self)
 					center[1] += point[0];
 					pointCount++;
 				}
-			center[0] /= pointCount;
-			center[1] /= pointCount;
+			center[0] /= pointCount == 0 ? 1 : pointCount;
+			center[1] /= pointCount == 0 ? 1 : pointCount;
 			watch.Value.watchCenter = center;
 		}
 
@@ -404,7 +424,15 @@ public class Watches(StormPredictionCenter? self)
 	{
 		string url = $"https://www.spc.noaa.gov/products/watch/{year}/ww{watchNumber:D4}.html"; // ensure the watch number is zero-padded to 4 digits
 
-		string data = await Utils.downloadStringAsync(url);
+		string data;
+		try
+		{
+			data = await Utils.downloadStringAsync(url);
+		}
+		catch
+		{
+			return null;
+		}
 		if (data == null || data == string.Empty)
 			return null;
 		HtmlDocument doc = new();

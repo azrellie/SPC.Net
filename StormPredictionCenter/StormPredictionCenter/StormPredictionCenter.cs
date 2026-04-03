@@ -5,48 +5,6 @@ using System.Globalization;
 using System.IO.Compression;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
-/*
-						  Storm Prediction Center API for C#
-								   Version 1.0.0
-									Made by azzy
-		This API was made for the need of me constantly having to access data
-		from the Storm Prediction Center, most notably the convective outlooks,
-		tornado watches, severe thunderstorm watches, and mesoscale discussions.
-
-		The data that this API uses comes from the listed pages:
-		1. https://www.spc.noaa.gov/gis/
-		2. https://www.spc.noaa.gov/archive/
-		3. https://www.weather.gov/documentation/services-web-api#/
-		4. https://www.spc.noaa.gov/products/watch/ww0119.html (at the time of typing this)
-		5. https://www.wpc.ncep.noaa.gov/kml/kmlproducts.php
-		6. https://www.nhc.noaa.gov/gis/
-		7. https://mrms.ncep.noaa.gov/data/RIDGEII/
-
-		Said data is gathered up and processed to be used for whatever it is
-		needed for without the hassle of retrieving the data, and processing it.
-
-		This API can be used for many various things that use C# as its language.
-		Whether thats software for Windows, games for Unity, or even for addons/mods
-		that use C# to develop said addons/mods.
-
-		This API was developed on the .NET 7 SDK. Backports are unlikely since I do not really
-		have the time for that (but you are free to do it your self if you so wish).
-
-		Porting to other languages like C++, python, javascript etc are possible, but the same statement
-		above still applies.
-
-		None of the classes within this API are nullable, which means you can safely read the
-		fields and properties of the classes without having to do null checks, as null checks
-		are handled internally and any null values will instead just use their default value.
-
-		This API is still brand new and may have some bugs associated with it.
-
-		Planned features for API may include:
-		1. Ability to access historic data, whether thats outlooks or watches.
-		2. Get a list of all active warnings from the National Weather Service, with the option to filter them by event name.
-		3. Have a separate class for things solely related to the National Weather Service, such as observations and forecasts.
-*/
-
 // warnings begone
 #pragma warning disable CS8600
 #pragma warning disable CS8601
@@ -55,29 +13,10 @@ using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 #pragma warning disable CS8767
 #pragma warning disable CS1591
 
-/*
-change notes:
-now using geojson.net for geojson reading
-added current storm reports gathering
-added space weather prediction center
-made a majority of the methods async
-lots of bug fixes
-*/
-
 namespace Azrellie.Meteorology.SPC;
 
 public class StormPredictionCenter
 {
-	/// <summary>
-	/// The version of this API as a string. Useful if you need to check the version of the API through code.
-	/// </summary>
-	public readonly string versionString = "1.0.0";
-
-	/// <summary>
-	/// The version of this API as a double. Useful if you need to check the version of the API through code.
-	/// </summary>
-	public readonly double versionNumber = 100;
-
 	/// <summary>
 	/// Enables debug logging.
 	/// </summary>
@@ -93,6 +32,7 @@ public class StormPredictionCenter
 	public Events events;
 	public SpaceWeather spaceWeather;
 	public Radio radio;
+	public Points points;
 
 	internal void debugLog(dynamic message)
 	{
@@ -112,6 +52,7 @@ public class StormPredictionCenter
 		events = new(this);
 		spaceWeather = new(this);
 		radio = new(this);
+		points = new(this);
 	}
 }
 
@@ -185,11 +126,7 @@ public class Utils
 			entryStream.CopyTo(kmlStream);
 			kmlStream.Position = 0;
 			return kmlStream;
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine("[SPC] Error processing kmz: " + ex);
-		}
+		}catch{}
 		return null;
 	}
 
@@ -230,10 +167,8 @@ public class Utils
 		{
 			return http.GetStringAsync(url).Result;
 		}
-		catch (Exception ex)
+		catch
 		{
-			if (!ex.ToString().Contains("504 (Gateway Time-out)"))
-				Console.WriteLine(ex.ToString() + " | " + url);
 			return string.Empty;
 		}
 	}
@@ -244,10 +179,8 @@ public class Utils
 		{
 			return await http.GetStringAsync(url);
 		}
-		catch (Exception ex)
+		catch
 		{
-			if (!ex.ToString().Contains("504 (Gateway Time-out)"))
-				Console.WriteLine(ex.ToString() + " | " + url);
 			return string.Empty;
 		}
 	}
@@ -269,6 +202,8 @@ public class Utils
 		{
 			if (File.Exists(fileName))
 				File.Delete(fileName);
+			if (!Directory.Exists(Path.GetDirectoryName(fileName)))
+				Directory.CreateDirectory(Path.GetDirectoryName(fileName));
 
 			using var response = await http.GetAsync(url);
 			response.EnsureSuccessStatusCode();
@@ -280,9 +215,8 @@ public class Utils
 
 			return true;
 		}
-		catch (Exception ex)
+		catch
 		{
-			Console.WriteLine($"Download failed: {ex.Message}");
 			return false;
 		}
 	}
@@ -298,9 +232,8 @@ public class Utils
 			stream.CopyTo(memStream);
 			return memStream;
 		}
-		catch (Exception ex)
+		catch
 		{
-			Console.WriteLine($"Download failed: {ex.Message}");
 			return null;
 		}
 	}
@@ -337,11 +270,7 @@ public class Utils
 			HtmlDocument htmlDocument = new();
 			htmlDocument.LoadHtml(htmlContent);
 			extractLinks(htmlDocument.DocumentNode, urls);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine($"[SPC] Error fetching or parsing the webpage: {ex.Message}");
-		}
+		}catch{}
 
 		return urls;
 	}

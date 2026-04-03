@@ -43,6 +43,7 @@ public record StormPredictionCenterMesoscaleDiscussion
 	public string issuedString = string.Empty;
 	public string areasAffected = string.Empty;
 	public SPCPolygon polygon = new();
+	public string synopsis = string.Empty;
 	public override string ToString() => $"{fullName} | Type: {type} | Issued: {issuedString} | More at: {url}";
 }
 

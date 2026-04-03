@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpKml.Base;
 using SharpKml.Dom;
@@ -1533,6 +1534,7 @@ public class Outlooks(StormPredictionCenter? self)
 		};
 
 		MemoryStream? kml = await Utils.processKmz("https://www.spc.noaa.gov/products/md/ActiveMD.kmz");
+		if (kml == null) return []; // null for some reason
 		List<MemoryStream> mds = [];
 
 		// extract active mesoscale discussion kmz files and store it in active md folder
@@ -1550,6 +1552,7 @@ public class Outlooks(StormPredictionCenter? self)
 		List<StormPredictionCenterMesoscaleDiscussion> stormPredictionCenterMesoscaleDiscussions = [];
 		foreach (MemoryStream mesoscaleDiscussion in mds)
 		{
+			if (mesoscaleDiscussion == null) continue;
 			StormPredictionCenterMesoscaleDiscussion stormPredictionCenterMesoscaleDiscussion = new();
 			Parser parser = new();
 			parser.Parse(mesoscaleDiscussion, false);
@@ -1592,8 +1595,13 @@ public class Outlooks(StormPredictionCenter? self)
 							type = "Freezing Rain";
 						else if (lines[4].Contains("blizzard", StringComparison.InvariantCultureIgnoreCase))
 							type = "Blizzard";
+						else if (lines[4].Contains("outlook upgrade", StringComparison.InvariantCultureIgnoreCase))
+							type = "Outlook Upgrade";
 					stormPredictionCenterMesoscaleDiscussion.type = type;
 				}
+			HtmlDocument doc = new();
+			doc.LoadHtml(await Utils.downloadStringAsync($"https://www.spc.noaa.gov/products/md/md{stormPredictionCenterMesoscaleDiscussion.mesoscaleNumber:D4}.html"));
+			stormPredictionCenterMesoscaleDiscussion.synopsis = doc.DocumentNode.SelectNodes("//pre")?[0].InnerText;
 			stormPredictionCenterMesoscaleDiscussions.Add(stormPredictionCenterMesoscaleDiscussion);
 		}
 

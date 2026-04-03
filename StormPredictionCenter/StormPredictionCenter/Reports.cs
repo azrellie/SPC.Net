@@ -27,10 +27,11 @@ public class Reports(StormPredictionCenter? self)
 					report.magnitude = split[1];
 					report.location = split[2];
 					report.county = split[3];
-					report.county = split[4];
+					report.state = split[4];
 					report.latitude = double.Parse(split[5]);
 					report.longitude = double.Parse(split[6]);
 					report.remarks = split[7];
+					reports.Add(report);
 				}
 		}
 		else if (reportType == ReportType.Wind)
@@ -50,10 +51,11 @@ public class Reports(StormPredictionCenter? self)
 					report.magnitude = double.Parse(split[1]);
 					report.location = split[2];
 					report.county = split[3];
-					report.county = split[4];
+					report.state = split[4];
 					report.latitude = double.Parse(split[5]);
 					report.longitude = double.Parse(split[6]);
 					report.remarks = split[7];
+					reports.Add(report);
 				}
 		}
 		else if (reportType == ReportType.Hail)
@@ -73,10 +75,11 @@ public class Reports(StormPredictionCenter? self)
 					report.magnitude = double.Parse(split[1]) / 100;
 					report.location = split[2];
 					report.county = split[3];
-					report.county = split[4];
+					report.state = split[4];
 					report.latitude = double.Parse(split[5]);
 					report.longitude = double.Parse(split[6]);
 					report.remarks = split[7];
+					reports.Add(report);
 				}
 		}
 		return [..reports];
@@ -102,10 +105,11 @@ public class Reports(StormPredictionCenter? self)
 					report.magnitude = split[1];
 					report.location = split[2];
 					report.county = split[3];
-					report.county = split[4];
+					report.state = split[4];
 					report.latitude = double.Parse(split[5]);
 					report.longitude = double.Parse(split[6]);
 					report.remarks = split[7];
+					reports.Add(report);
 				}
 		}
 		else if (reportType == ReportType.Wind)
@@ -125,10 +129,11 @@ public class Reports(StormPredictionCenter? self)
 					report.magnitude = double.Parse(split[1]);
 					report.location = split[2];
 					report.county = split[3];
-					report.county = split[4];
+					report.state = split[4];
 					report.latitude = double.Parse(split[5]);
 					report.longitude = double.Parse(split[6]);
 					report.remarks = split[7];
+					reports.Add(report);
 				}
 		}
 		else if (reportType == ReportType.Hail)
@@ -148,10 +153,11 @@ public class Reports(StormPredictionCenter? self)
 					report.magnitude = double.Parse(split[1]) / 100;
 					report.location = split[2];
 					report.county = split[3];
-					report.county = split[4];
+					report.state = split[4];
 					report.latitude = double.Parse(split[5]);
 					report.longitude = double.Parse(split[6]);
 					report.remarks = split[7];
+					reports.Add(report);
 				}
 		}
 		return [..reports];

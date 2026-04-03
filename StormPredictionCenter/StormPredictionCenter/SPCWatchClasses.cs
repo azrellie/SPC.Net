@@ -5,9 +5,9 @@ public record WatchHazard(int chance, string hazard)
 	public int chance = chance;
 	public string hazard = hazard;
 }
-public record WatchHazards
+public record WatchHazards(string msg = "")
 {
-	public string message = string.Empty;
+	public string message = msg;
 	public bool isPDS = false;
 	public WatchHazard tornadoes = new(0, string.Empty);
 	public WatchHazard ef2PlusTornadoes = new(0, string.Empty);

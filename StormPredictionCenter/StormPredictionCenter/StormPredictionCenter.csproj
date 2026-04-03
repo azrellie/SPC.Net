@@ -4,7 +4,7 @@
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.2.0</Version>
+    <Version>2.2.2</Version>
     <PackageIcon>national weather service logo.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/azrellie/StormPredictionCenter</PackageProjectUrl>
@@ -13,10 +13,11 @@
     <Description>An API made to gather data from the Storm Prediction Center (and other US meteorology agencies), and compile it into an easy to use format.</Description>
     <Authors>Azrellie</Authors>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageReleaseNotes>New radio class
-Removed unused radar methods
-General bug fixes
-All (relevant) methods now async</PackageReleaseNotes>
+    <PackageReleaseNotes>Added try catches to watches to reduce errors messing with data gathering
+Fixed a bug with spc temp folder not generating when it should
+Fixed reports methods not adding reports to the return list
+Fixed reports setting county property twice
+Removed the version property, seeing as it went untouched during development</PackageReleaseNotes>
     <Product>SPC.Net</Product>
     <Title>SPCNET</Title>
     <PackageId>SPCNet</PackageId>
@@ -53,7 +54,7 @@ All (relevant) methods now async</PackageReleaseNotes>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExtendedTimer" Version="1.0.5" />
+    <PackageReference Include="ExtendedTimer" Version="2.0.0" />
     <PackageReference Include="GeoJSON.Net" Version="1.4.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.70" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

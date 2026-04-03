@@ -52,7 +52,7 @@ public class Archive(StormPredictionCenter? self)
 			}
 			DateTime now = DateTime.Now;
 			int day = outlookData[0].valid.Day - now.Day;
-			File.WriteAllText(Environment.CurrentDirectory + $"\\spc_outlook_day{day + 1}_{now:MM-dd-yyyy-HHmmsszz}.{extension}", JsonConvert.SerializeObject(geoJson, Newtonsoft.Json.Formatting.Indented));
+			File.WriteAllText(Environment.CurrentDirectory + $"\\spc_outlook_day{day + 1}_{now:MM-dd-yyyy-HHmmsszz}.{extension}", JsonConvert.SerializeObject(geoJson, Formatting.Indented));
 		}
 	}
 }

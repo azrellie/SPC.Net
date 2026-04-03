@@ -63,7 +63,7 @@ public class Events
 		StormPredictionCenterWatch[] severeThunderstormWatches = await watches.getActiveSevereThunderstormWatches();
 		StormPredictionCenterWatchBox[] watchBoxes = await watches.getActiveWatchBoxes();
 
-		DateTime timerStart = new(timer.TimeSinceStart, DateTimeKind.Utc);
+		DateTimeOffset timerStart = timer.TimeAtStart;
 		List<StormPredictionCenterWatch> theNewTorWatch = [];
 		foreach (StormPredictionCenterWatch watch in tornadoWatches)
 		{
@@ -125,7 +125,7 @@ public class Events
 
 		List<StormPredictionCenterMesoscaleDiscussion> newMds = [];
 		foreach (StormPredictionCenterMesoscaleDiscussion md in mds)
-			if (!lastMds.Contains(md.mesoscaleNumber) && new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) < md.issued.UtcDateTime)
+			if (!lastMds.Contains(md.mesoscaleNumber) && timer.TimeAtStart < md.issued.UtcDateTime)
 			{
 				newMds.Add(md);
 				lastMds.Add(md.mesoscaleNumber);
@@ -133,7 +133,7 @@ public class Events
 
 		// refire check: dont call this event again if the found mesoscale discussions match the last ones stored
 		foreach (StormPredictionCenterMesoscaleDiscussion md in mds)
-			if (new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) < md.issued) // md has been issued after we started listening for events
+			if (timer.TimeAtStart < md.issued) // md has been issued after we started listening for events
 				lastMds.Add(md.mesoscaleNumber);
 
 		if (newMds.Count > 0)
@@ -145,11 +145,11 @@ public class Events
 		string[] filter = ["tornado warning", "severe thunderstorm warning", "tornado watch", "severe thunderstorm watch", "special weather statement", "severe weather statement", "special marine warning", "marine weather statement"];
 		foreach (var warning in await warnings.getLatestWarnings(filter))
 		{
-			TimeSpan timeDiff = new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) - warning.sent;
+			TimeSpan timeDiff = timer.TimeAtStart - warning.sent;
 			if (timeDiff.TotalHours >= 6 && warning.warningName == "Special Weather Statement" && warning.description.Contains("thunderstorm", StringComparison.InvariantCultureIgnoreCase)) // if the registered warning is older than 6 hours, remove it
 				lastWarnings.Remove(warning.id);
 
-			if (new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) >= warning.sent) continue; // dont fire if the warning was issued before we started listening for events
+			if (timer.TimeAtStart >= warning.sent) continue; // dont fire if the warning was issued before we started listening for events
 			if (lastWarnings.Contains(warning.id)) continue; // dont fire if the warning is already registered in the last warnings list
 
 			lastWarnings.Add(warning.id);
@@ -170,11 +170,11 @@ public class Events
 		string[] filter = ["ice storm warning", "snow squall warning", "winter storm warning", "winter storm watch", "extreme cold warning", "cold weather advisory", "blizzard warning", "winter weather advisory", "extreme cold watch", "lake effect snow warning"];
 		foreach (var warning in await warnings.getLatestWarnings(filter))
 		{
-			TimeSpan timeDiff = new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) - warning.sent;
+			TimeSpan timeDiff = timer.TimeAtStart - warning.sent;
 			if (timeDiff.TotalHours >= 6 && warning.warningName == "Special Weather Statement" && warning.description.Contains("thunderstorm", StringComparison.InvariantCultureIgnoreCase)) // if the registered warning is older than 6 hours, remove it
 				lastWarnings.Remove(warning.id);
 
-			if (new DateTime(timer.TimeSinceStart, DateTimeKind.Utc) >= warning.sent) continue; // dont fire if the warning was issued before we started listening for events
+			if (timer.TimeAtStart >= warning.sent) continue; // dont fire if the warning was issued before we started listening for events
 			if (lastWarnings.Contains(warning.id)) continue; // dont fire if the warning is already registered in the last warnings list
 
 			lastWarnings.Add(warning.id);
@@ -195,7 +195,7 @@ public class Events
 		parent = self;
 		timer.TickInterval = 10000;
 		timer.TickOnStart = true;
-		timer.OnTimerTick += async (sender, e) =>
+		timer.OnTimerTick += async dt =>
 		{
 			if (!eventsEnabled) return;
 			if (watchIssued != null)
