@@ -156,11 +156,19 @@ public class SpaceWeather(StormPredictionCenter? self)
 	/// <summary>
 	/// Gets the current solar radiation storm intensity.
 	/// </summary>
+	/// <param name="timespan">The timespan to get. 0 = 6 hours, 1 = 1 day, 2 = 3 days, 3 = 7 days</param>
 	/// <returns>A tuple object containing the <see cref="SWPCSolarRadiationStorm"/> object and the "S" classification of the storm as a <see cref="string"/></returns>
-	public async Task<(SWPCSolarRadiationStorm, string)> getCurrentSolarRadiationStormIntensity()
+	public async Task<(SWPCSolarRadiationStorm, string)> getCurrentSolarRadiationStormIntensity(byte timespan)
 	{
+		string url = "https://services.swpc.noaa.gov/json/goes/primary/integral-protons-6-hour.json";
+		if (timespan == 1)
+			url = "https://services.swpc.noaa.gov/json/goes/primary/integral-protons-1-day.json";
+		else if (timespan == 2)
+			url = "https://services.swpc.noaa.gov/json/goes/primary/integral-protons-3-day.json";
+		else if (timespan == 3)
+			url = "https://services.swpc.noaa.gov/json/goes/primary/integral-protons-7-day.json";
 		List<SWPCSolarRadiationStorm> swpcSolarRadiationStorm = [];
-		JArray data = JArray.Parse(await Utils.downloadStringAsync("https://services.swpc.noaa.gov/json/goes/primary/integral-protons-6-hour.json"));
+		JArray data = JArray.Parse(await Utils.downloadStringAsync(url));
 		DateTime now = DateTime.UtcNow;
 		foreach (JObject d in data)
 		{
@@ -190,35 +198,80 @@ public class SpaceWeather(StormPredictionCenter? self)
 		return (solarRadiationStormData, intensity);
 	}
 
-	// TODO: work on
 	/// <summary>
 	/// Gets the current radio blackout intensity.
 	/// </summary>
+	/// <param name="timespan">The timespan to get. 0 = 6 hours, 1 = 1 day, 2 = 3 days, 3 = 7 days</param>
 	/// <returns>A tuple object containing the <see cref="SWPCSolarRadiationStorm"/> object and the "R" classification of the storm as a <see cref="string"/></returns>
-	public async Task<(SWPCSolarRadiationStorm, string)> getCurrentRadioBlackoutIntensity()
+	public async Task<(SWPCRadioBlackout, string)> getCurrentRadioBlackoutIntensity(byte timespan = 0)
 	{
-		List<SWPCSolarRadiationStorm> swpcSolarRadiationStormPoint = [];
-		JArray data = JArray.Parse(await Utils.downloadStringAsync("https://services.swpc.noaa.gov/json/goes/primary/integral-protons-6-hour.json"));
+		string url = "https://services.swpc.noaa.gov/json/goes/primary/xrays-6-hour.json";
+		if (timespan == 1)
+			url = "https://services.swpc.noaa.gov/json/goes/primary/xrays-1-day.json";
+		else if (timespan == 2)
+			url = "https://services.swpc.noaa.gov/json/goes/primary/xrays-3-day.json";
+		else if (timespan == 3)
+			url = "https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json";
+		List<SWPCRadioBlackout> blackouts = [];
+		JArray data = JArray.Parse(await Utils.downloadStringAsync(url));
+		foreach (JObject d in data)
+		{
+			DateTime time = DateTime.Parse((string)d["time_tag"]);
+			double flux = (double)d["flux"];
+			double obsFlux = (double)d["observed_flux"];
+			string energy = (string)d["energy"];
+			blackouts.Add(new(time, flux, obsFlux, energy));
+		}
+		var blackoutSorted = blackouts.OrderBy(obj => obj.TimeOfObservation);
+		SWPCRadioBlackout radioBlackoutData = blackouts.Last();
+		string intensity = "R0";
+		if (radioBlackoutData.Flux >= 2e-3)
+			intensity = "R5";
+		else if (radioBlackoutData.Flux >= 1e-3)
+			intensity = "R4";
+		else if (radioBlackoutData.Flux >= 1e-4)
+			intensity = "R3";
+		else if (radioBlackoutData.Flux >= 5e-5)
+			intensity = "R2";
+		else if (radioBlackoutData.Flux >= 1e-5)
+			intensity = "R1";
+		return (radioBlackoutData, intensity);
+	}
+
+	/// <summary>
+	/// Gets radio blackouts in the past 7 days.
+	/// </summary>
+	public async Task<SWPCRadioBlackout[]> getRadioBlackouts(TimeSpan timespan)
+	{
+		List<SWPCRadioBlackout> blackouts = [];
+		JArray data = JArray.Parse(await Utils.downloadStringAsync("https://services.swpc.noaa.gov/json/goes/primary/xrays-7-day.json"));
+		foreach (JObject d in data)
+		{
+			DateTime time = DateTime.Parse((string)d["time_tag"]);
+			double flux = (double)d["flux"];
+			double obsFlux = (double)d["observed_flux"];
+			string energy = (string)d["energy"];
+			blackouts.Add(new(time, flux, obsFlux, energy));
+		}
+		var cutoff = DateTime.UtcNow - timespan;
+		return [..blackouts.Where(obj => obj.TimeOfObservation >= cutoff)];
+	}
+
+	/// <summary>
+	/// Gets radio blackouts in the past 7 days. Using a timespan that is less than a minute will instead return all observations (as each observation is usually around a minute apart).
+	/// </summary>
+	public async Task<SWPCSolarRadiationStorm[]> getSolarRadiationStorms(TimeSpan timespan)
+	{
+		List<SWPCSolarRadiationStorm> blackouts = [];
+		JArray data = JArray.Parse(await Utils.downloadStringAsync("https://services.swpc.noaa.gov/json/goes/primary/integral-protons-7-day.json"));
 		foreach (JObject d in data)
 		{
 			DateTime time = DateTime.Parse((string)d["time_tag"]);
 			double flux = (double)d["flux"];
 			string energy = (string)d["energy"];
-			swpcSolarRadiationStormPoint.Add(new(time, flux, energy));
+			blackouts.Add(new(time, flux, energy));
 		}
-		var swpcSolarRadiationStormSorted = swpcSolarRadiationStormPoint.OrderBy(obj => obj.TimeOfObservation);
-		SWPCSolarRadiationStorm solarRadiationStormData = swpcSolarRadiationStormSorted.Last();
-		string intensity = "None";
-		if (solarRadiationStormData.ProtonFlux >= 10 && solarRadiationStormData.ProtonFlux < 100)
-			intensity = "S1";
-		else if (solarRadiationStormData.ProtonFlux >= 100 && solarRadiationStormData.ProtonFlux < 1000)
-			intensity = "S2";
-		else if (solarRadiationStormData.ProtonFlux >= 1000 && solarRadiationStormData.ProtonFlux < 10000)
-			intensity = "S3";
-		else if (solarRadiationStormData.ProtonFlux >= 10000 && solarRadiationStormData.ProtonFlux < 100000)
-			intensity = "S4";
-		else if (solarRadiationStormData.ProtonFlux >= 100000)
-			intensity = "S5";
-		return (solarRadiationStormData, intensity);
+		var cutoff = DateTime.UtcNow - timespan;
+		return [..blackouts.Where(obj => obj.TimeOfObservation >= cutoff)];
 	}
 }

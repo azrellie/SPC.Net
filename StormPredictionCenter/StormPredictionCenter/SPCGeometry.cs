@@ -16,7 +16,7 @@ public record SPCPoint
 		this.lat = lat;
 		this.lng = lng;
 	}
-	public SPCPoint() { }
+	public SPCPoint(){}
 }
 
 public record Geometry

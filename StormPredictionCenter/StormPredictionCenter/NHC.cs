@@ -420,7 +420,7 @@ public class NHC(StormPredictionCenter? self)
 	/// <returns>An array containing <see cref="DisturbanceObject"/> objects.</returns>
 	public async Task<DisturbanceObject[]> getDisturbances(string basin)
 	{
-		List<DisturbanceObject> nationalHurricaneCenterDisturbances = [];
+		HashSet<DisturbanceObject> nationalHurricaneCenterDisturbances = [];
 
 		string temp = Path.GetTempPath();
 		if (!Directory.Exists(temp + "/nhc data"))
@@ -429,6 +429,8 @@ public class NHC(StormPredictionCenter? self)
 		foreach (string file in Directory.GetFiles(temp + "/nhc data"))
 			File.Delete(file);
 
+		int placemarkIndex = 0;
+		DisturbanceObject disturbance = new();
 		if (basin == "Atlantic")
 		{
 			string fileName = temp + "/nhc data/nhc_disturbances.kmz";
@@ -448,9 +450,15 @@ public class NHC(StormPredictionCenter? self)
 			if (kmlFile.Root is Kml kml)
 				if (kml.Feature is Document doc)
 					foreach (var feature in doc.Features)
+					{
+						if (placemarkIndex > 1)
+						{
+							nationalHurricaneCenterDisturbances.Add(disturbance);
+							placemarkIndex = 0;
+							disturbance = new();
+						}
 						if (feature is Placemark placemark)
 						{
-							DisturbanceObject disturbance = new();
 							if (placemark.Geometry is KMLPolygon polygon)
 							{
 								SPCPolygon p = new();
@@ -459,8 +467,11 @@ public class NHC(StormPredictionCenter? self)
 								disturbance.polygon = p;
 							}
 							else if (placemark.Geometry is Point point)
+							{
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
+							}
 							if (placemark.ExtendedData != null)
+							{
 								foreach (Data data in placemark.ExtendedData.Data)
 									if (data.Name == "Disturbance")
 										disturbance.disturbanceIndex = byte.Parse(data.Value);
@@ -474,8 +485,10 @@ public class NHC(StormPredictionCenter? self)
 										disturbance.day7Category = data.Value;
 									else if (data.Name == "Discussion")
 										disturbance.discussion = data.Value;
-							nationalHurricaneCenterDisturbances.Add(disturbance);
+							}
 						}
+						placemarkIndex++;
+					}
 		}
 		else if (basin == "East Pacific")
 		{
@@ -496,9 +509,15 @@ public class NHC(StormPredictionCenter? self)
 			if (kmlFile.Root is Kml kml)
 				if (kml.Feature is Document doc)
 					foreach (var feature in doc.Features)
+					{
+						if (placemarkIndex > 1)
+						{
+							nationalHurricaneCenterDisturbances.Add(disturbance);
+							placemarkIndex = 0;
+							disturbance = new();
+						}
 						if (feature is Placemark placemark)
 						{
-							DisturbanceObject disturbance = new();
 							if (placemark.Geometry is KMLPolygon polygon)
 							{
 								SPCPolygon p = new();
@@ -507,8 +526,11 @@ public class NHC(StormPredictionCenter? self)
 								disturbance.polygon = p;
 							}
 							else if (placemark.Geometry is Point point)
+							{
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
+							}
 							if (placemark.ExtendedData != null)
+							{
 								foreach (Data data in placemark.ExtendedData.Data)
 									if (data.Name == "Disturbance")
 										disturbance.disturbanceIndex = byte.Parse(data.Value);
@@ -522,8 +544,10 @@ public class NHC(StormPredictionCenter? self)
 										disturbance.day7Category = data.Value;
 									else if (data.Name == "Discussion")
 										disturbance.discussion = data.Value;
-							nationalHurricaneCenterDisturbances.Add(disturbance);
+							}
 						}
+						placemarkIndex++;
+					}
 		}
 		else if (basin == "Central Pacific")
 		{
@@ -545,10 +569,15 @@ public class NHC(StormPredictionCenter? self)
 			if (kmlFile.Root is Kml kml)
 				if (kml.Feature is Document doc)
 					foreach (var feature in doc.Features)
+					{
+						if (placemarkIndex > 1)
+						{
+							nationalHurricaneCenterDisturbances.Add(disturbance);
+							placemarkIndex = 0;
+							disturbance = new();
+						}
 						if (feature is Placemark placemark)
 						{
-							if (placemark.ExtendedData == null) continue;
-							DisturbanceObject disturbance = new();
 							if (placemark.Geometry is KMLPolygon polygon)
 							{
 								SPCPolygon p = new();
@@ -557,8 +586,11 @@ public class NHC(StormPredictionCenter? self)
 								disturbance.polygon = p;
 							}
 							else if (placemark.Geometry is Point point)
+							{
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
+							}
 							if (placemark.ExtendedData != null)
+							{
 								foreach (Data data in placemark.ExtendedData.Data)
 									if (data.Name == "Disturbance")
 										disturbance.disturbanceIndex = byte.Parse(data.Value);
@@ -572,8 +604,10 @@ public class NHC(StormPredictionCenter? self)
 										disturbance.day7Category = data.Value;
 									else if (data.Name == "Discussion")
 										disturbance.discussion = data.Value;
-							nationalHurricaneCenterDisturbances.Add(disturbance);
+							}
 						}
+						placemarkIndex++;
+					}
 		}
 		return [..nationalHurricaneCenterDisturbances];
 	}

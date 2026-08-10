@@ -18,7 +18,14 @@ namespace SPC_Testing
 			spc.events.watchIssued += Events_watchIssued;
 			spc.events.mesoscaleDiscussionIssued += Events_mesoscaleDiscussionIssued;
 			spc.events.convectiveWarningIssued += Events_warningIssued;
-
+			foreach (var e in await spc.nhc.getDisturbances("Central Pacific"))
+			{
+				Console.WriteLine($"{e}, {e.point}");
+				foreach (var p in e.polygon.coordinates)
+				{
+					Console.WriteLine(string.Join(", ", p));
+				}
+			}
 			while (true)
 			{
 				string? line = Console.ReadLine();
