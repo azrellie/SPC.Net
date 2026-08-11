@@ -1,4 +1,4 @@
-﻿using SharpKml.Base;
+using SharpKml.Base;
 using SharpKml.Dom;
 using SharpKml.Engine;
 using System.Globalization;
@@ -379,7 +379,7 @@ public class NHC(StormPredictionCenter? self)
 							}
 					}
 
-		return [..nationalHurricaneCenterActiveStorms];
+		return [.. nationalHurricaneCenterActiveStorms];
 	}
 
 	/// <summary>
@@ -429,7 +429,7 @@ public class NHC(StormPredictionCenter? self)
 		foreach (string file in Directory.GetFiles(temp + "/nhc data"))
 			File.Delete(file);
 
-		int placemarkIndex = 0;
+		bool lastPlacemark = false;
 		DisturbanceObject disturbance = new();
 		if (basin == "Atlantic")
 		{
@@ -451,12 +451,6 @@ public class NHC(StormPredictionCenter? self)
 				if (kml.Feature is Document doc)
 					foreach (var feature in doc.Features)
 					{
-						if (placemarkIndex > 1)
-						{
-							nationalHurricaneCenterDisturbances.Add(disturbance);
-							placemarkIndex = 0;
-							disturbance = new();
-						}
 						if (feature is Placemark placemark)
 						{
 							if (placemark.Geometry is KMLPolygon polygon)
@@ -469,10 +463,12 @@ public class NHC(StormPredictionCenter? self)
 							else if (placemark.Geometry is Point point)
 							{
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
+								lastPlacemark = true;
 							}
 							if (placemark.ExtendedData != null)
 							{
 								foreach (Data data in placemark.ExtendedData.Data)
+								{
 									if (data.Name == "Disturbance")
 										disturbance.disturbanceIndex = byte.Parse(data.Value);
 									else if (data.Name == "2day_percentage")
@@ -485,9 +481,15 @@ public class NHC(StormPredictionCenter? self)
 										disturbance.day7Category = data.Value;
 									else if (data.Name == "Discussion")
 										disturbance.discussion = data.Value;
+								}
 							}
 						}
-						placemarkIndex++;
+						if (lastPlacemark)
+						{
+							nationalHurricaneCenterDisturbances.Add(disturbance);
+							lastPlacemark = false;
+							disturbance = new();
+						}
 					}
 		}
 		else if (basin == "East Pacific")
@@ -510,12 +512,6 @@ public class NHC(StormPredictionCenter? self)
 				if (kml.Feature is Document doc)
 					foreach (var feature in doc.Features)
 					{
-						if (placemarkIndex > 1)
-						{
-							nationalHurricaneCenterDisturbances.Add(disturbance);
-							placemarkIndex = 0;
-							disturbance = new();
-						}
 						if (feature is Placemark placemark)
 						{
 							if (placemark.Geometry is KMLPolygon polygon)
@@ -528,10 +524,12 @@ public class NHC(StormPredictionCenter? self)
 							else if (placemark.Geometry is Point point)
 							{
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
+								lastPlacemark = true;
 							}
 							if (placemark.ExtendedData != null)
 							{
 								foreach (Data data in placemark.ExtendedData.Data)
+								{
 									if (data.Name == "Disturbance")
 										disturbance.disturbanceIndex = byte.Parse(data.Value);
 									else if (data.Name == "2day_percentage")
@@ -544,9 +542,15 @@ public class NHC(StormPredictionCenter? self)
 										disturbance.day7Category = data.Value;
 									else if (data.Name == "Discussion")
 										disturbance.discussion = data.Value;
+								}
 							}
 						}
-						placemarkIndex++;
+						if (lastPlacemark)
+						{
+							nationalHurricaneCenterDisturbances.Add(disturbance);
+							lastPlacemark = false;
+							disturbance = new();
+						}
 					}
 		}
 		else if (basin == "Central Pacific")
@@ -570,12 +574,6 @@ public class NHC(StormPredictionCenter? self)
 				if (kml.Feature is Document doc)
 					foreach (var feature in doc.Features)
 					{
-						if (placemarkIndex > 1)
-						{
-							nationalHurricaneCenterDisturbances.Add(disturbance);
-							placemarkIndex = 0;
-							disturbance = new();
-						}
 						if (feature is Placemark placemark)
 						{
 							if (placemark.Geometry is KMLPolygon polygon)
@@ -588,10 +586,12 @@ public class NHC(StormPredictionCenter? self)
 							else if (placemark.Geometry is Point point)
 							{
 								disturbance.point = new(point.Coordinate.Latitude, point.Coordinate.Longitude);
+								lastPlacemark = true;
 							}
 							if (placemark.ExtendedData != null)
 							{
 								foreach (Data data in placemark.ExtendedData.Data)
+								{
 									if (data.Name == "Disturbance")
 										disturbance.disturbanceIndex = byte.Parse(data.Value);
 									else if (data.Name == "2day_percentage")
@@ -604,11 +604,17 @@ public class NHC(StormPredictionCenter? self)
 										disturbance.day7Category = data.Value;
 									else if (data.Name == "Discussion")
 										disturbance.discussion = data.Value;
+								}
 							}
 						}
-						placemarkIndex++;
+						if (lastPlacemark)
+						{
+							nationalHurricaneCenterDisturbances.Add(disturbance);
+							lastPlacemark = false;
+							disturbance = new();
+						}
 					}
 		}
-		return [..nationalHurricaneCenterDisturbances];
+		return [.. nationalHurricaneCenterDisturbances];
 	}
 }
