@@ -379,7 +379,7 @@ public class NHC(StormPredictionCenter? self)
 							}
 					}
 
-		return [.. nationalHurricaneCenterActiveStorms];
+		return [..nationalHurricaneCenterActiveStorms];
 	}
 
 	/// <summary>
