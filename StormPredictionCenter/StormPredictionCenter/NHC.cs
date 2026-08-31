@@ -35,7 +35,8 @@ public class NHC(StormPredictionCenter? self)
 			{"AZOST", "+00:00"},
 			{"CVT", "-01:00"},
 			{"PDT", "-07:00"},
-			{"PST", "-08:00"}
+			{"PST", "-08:00"},
+			{"HST", "-10:00"}
 		};
 		List<StormObject> nationalHurricaneCenterActiveStorms = [];
 
@@ -335,6 +336,7 @@ public class NHC(StormPredictionCenter? self)
 															else if (split[0].Length == 4)
 																time = split[0].Insert(2, ":");
 															restructured = $"{time} {split[1]} {split[2].Replace(timeZone, timeOffset)} {split[3]} {split[4]} {split[5]} {split[6]}";
+															forecastCone.timezone = timeZone;
 															forecastCone.advisoryDate = DateTime.ParseExact(restructured, "h:mm tt zzz ddd MMM dd yyyy", CultureInfo.InvariantCulture);
 														}
 														stormObject.forecastCone = forecastCone;
@@ -392,7 +394,7 @@ public class NHC(StormPredictionCenter? self)
 		StormObject[] activeStorms = await getActiveStorms();
 		foreach (StormObject storm in activeStorms)
 		{
-			if (storm.name == name)
+			if (storm.name.ToLower() == name.ToLower())
 				return storm;
 		}
 		return null;
@@ -615,6 +617,6 @@ public class NHC(StormPredictionCenter? self)
 						}
 					}
 		}
-		return [.. nationalHurricaneCenterDisturbances];
+		return [..nationalHurricaneCenterDisturbances];
 	}
 }
