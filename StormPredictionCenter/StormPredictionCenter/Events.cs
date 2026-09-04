@@ -1,4 +1,4 @@
-﻿using Azrellie.Misc.ExtendedTimer;
+using Azrellie.Misc.ExtendedTimer;
 
 namespace Azrellie.Meteorology.SPC;
 
@@ -26,6 +26,21 @@ public class Events
 	/// </summary>
 	public event WarningIssueEventHandler convectiveWarningIssued;
 	public event WarningIssueEventHandler winterWarningIssued;
+
+	/// <summary>
+	/// Update interval in ms.
+	/// </summary>
+	public int updateInterval
+	{
+		get => eventUpdateInterval;
+		set
+		{
+			eventUpdateInterval = value;
+			timer.TickInterval = value;
+		}
+	}
+
+	private int eventUpdateInterval = 10000;
 
 	/// <summary>
 	/// Allows events to be enabled.
@@ -193,7 +208,7 @@ public class Events
 	public Events(StormPredictionCenter self)
 	{
 		parent = self;
-		timer.TickInterval = 10000;
+		timer.TickInterval = updateInterval;
 		timer.TickOnStart = true;
 		timer.OnTimerTick += async dt =>
 		{
