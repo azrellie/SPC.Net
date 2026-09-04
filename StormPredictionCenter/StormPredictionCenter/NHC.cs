@@ -59,7 +59,7 @@ public class NHC(StormPredictionCenter? self)
 				foreach (var feature in doc.Features)
 					if (feature is Folder folder)
 					{
-						if (!folder.Id.Contains("at") && !folder.Id.Contains("ep")) continue; // skip any folders that do not hold hurricane data
+						if (!folder.Id.Contains("at") && !folder.Id.Contains("ep") && !folder.Id.Contains("cp")) continue; // skip any folders that do not hold hurricane data
 						StormObject stormObject = new();
 						if (folder.ExtendedData != null)
 						{
