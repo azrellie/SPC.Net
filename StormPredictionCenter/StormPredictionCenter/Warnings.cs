@@ -1,12 +1,12 @@
-﻿using GeoJSON.Net.Feature;
-using GeoJSON.Net.Geometry;
 using GeoJSON.Net;
-using Newtonsoft.Json.Linq;
+using GeoJSON.Net.Feature;
+using GeoJSON.Net.Geometry;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
 namespace Azrellie.Meteorology.SPC;
-// TODO: download county geometry from county wide alerts
+
 /// <summary>
 /// Retrieve warning data from the NWS.
 /// </summary>
@@ -17,15 +17,21 @@ public class Warnings(StormPredictionCenter? self)
 	/// <summary>
 	/// Gets currently active convective warnings from the National Weather Service.
 	/// </summary>
+	/// <param name="point">
+	/// The geographic point to get alerts for. Formatted in double[2] {latitude, longitude}.
+	/// </param>
 	/// <param name="includeCustomWarnings">
 	/// Whether or not custom warnings should be included. Custom warnings are variations of the same warning displayed in their own type of warning.
 	/// An example would be a tornado warning with "tornado emergency" in its bulletin being displayed as a tornado emergency instead. Or a severe thunderstorm warning that meets a certian criteria being displayed as a "derecho warning" (EXPERIMENTAL).
 	/// </param>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestConvectiveWarnings(bool includeCustomWarnings = false)
+	public async Task<StormPredictionCenterWarning[]> getLatestConvectiveWarnings(double[]? point = null, bool includeCustomWarnings = false)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=tornado%20warning,severe%20thunderstorm%20warning,special%20weather%20statement,severe%20weather%20statement,tornado%20watch,severe%20thunderstorm%20watch"));
+		var url = "https://api.weather.gov/alerts/active?event=tornado%20warning,severe%20thunderstorm%20warning,special%20weather%20statement,severe%20weather%20statement,tornado%20watch,severe%20thunderstorm%20watch";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -165,10 +171,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active hydrologic warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestHydrologicWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestHydrologicWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=flash%20flood%20warning,flood%20warning,flash%20flood%20watch,flood%20advisory,flood%20watch,flood%20statement,hydrologic%20statement,hydrologic%20outlook,flash%20flood%20statement"));
+		var url = "https://api.weather.gov/alerts/active?event=tornado%20warning,severe%20thunderstorm%20warning,special%20weather%20statement,severe%20weather%20statement,tornado%20watch,severe%20thunderstorm%20watch";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -259,10 +268,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active non convective warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestNonConvectiveWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestNonConvectiveWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=high%20wind%20warning,high%20wind%20watch,%20wind%20advisory,excessive%20heat%20warning,%20heat%20advisory,dense%20fog%20advisory,dense%20smoke%20advisory,dust%20storm%20warning,blowing%20dust%20advisory,air%20stagnation%20advisory,air%20quality%20alert,freeze%20warning,freeze%20watch,hard%20freeze%20warning,hard%20freeze%20watch"));
+		var url = "https://api.weather.gov/alerts/active?event=high%20wind%20warning,high%20wind%20watch,%20wind%20advisory,excessive%20heat%20warning,%20heat%20advisory,dense%20fog%20advisory,dense%20smoke%20advisory,dust%20storm%20warning,blowing%20dust%20advisory,air%20stagnation%20advisory,air%20quality%20alert,freeze%20warning,freeze%20watch,hard%20freeze%20warning,hard%20freeze%20watch";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -351,10 +363,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active marine warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestMarineWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestMarineWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=special%20marine%20warning,marine%20weather%20statement,hurricane%20force%20wind%20warning,hurricane%20force%20wind%20watch,storm%20warning,storm%20watch,gale%20warning,%20gale%20watch,small%20craft%20advisory,marine%20dense%20fog%20advisory"));
+		var url = "https://api.weather.gov/alerts/active?event=special%20marine%20warning,marine%20weather%20statement,hurricane%20force%20wind%20warning,hurricane%20force%20wind%20watch,storm%20warning,storm%20watch,gale%20warning,%20gale%20watch,small%20craft%20advisory,marine%20dense%20fog%20advisory";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -445,10 +460,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active tropical warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestTropicalWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestTropicalWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=hurricane%20warning,hurricane%20watch,tropical%20storm%20warning,tropical%20storm%20watch,extreme%20wind%20warning,hurricane%20statement,tropical%20cyclone%20statement"));
+		var url = "https://api.weather.gov/alerts/active?event=hurricane%20warning,hurricane%20watch,tropical%20storm%20warning,tropical%20storm%20watch,extreme%20wind%20warning,hurricane%20statement,tropical%20cyclone%20statement";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -535,10 +553,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active winter weather warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestWinterWeatherWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestWinterWeatherWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=extreme%20cold%20warning,cold%20weather%20watch,cold%20weather%20advisory,winter%20storm%20warning,ice%20storm%20warning,winter%20storm%20watch,winter%20weather%20advisory,blizzard%20warning,heavy%20freezing%20spray%20warning,lake%20effect%20snow%20warning,snow%20squall%20warning"));
+		var url = "https://api.weather.gov/alerts/active?event=extreme%20cold%20warning,cold%20weather%20watch,cold%20weather%20advisory,winter%20storm%20warning,ice%20storm%20warning,winter%20storm%20watch,winter%20weather%20advisory,blizzard%20warning,heavy%20freezing%20spray%20warning,lake%20effect%20snow%20warning,snow%20squall%20warning";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -625,10 +646,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active fire weather warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestFireWeatherWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestFireWeatherWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=red%20flag%20warning,fire%20warning,fire%20weather%20watch,fire%20danger%20statement"));
+		var url = "https://api.weather.gov/alerts/active?event=red%20flag%20warning,fire%20warning,fire%20weather%20watch,fire%20danger%20statement";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -715,10 +739,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active coastal warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestCoastalWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestCoastalWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=coastal%20flood%20warning,coastal%20flood%20watch,coastal%20flood%20advisory,coastal%20flood%20statement,high%20surf%20warning,high%20surf%20advisory,rip%20current%20statement"));
+		var url = "https://api.weather.gov/alerts/active?event=coastal%20flood%20warning,coastal%20flood%20watch,coastal%20flood%20advisory,coastal%20flood%20statement,high%20surf%20warning,high%20surf%20advisory,rip%20current%20statement";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -805,10 +832,13 @@ public class Warnings(StormPredictionCenter? self)
 	/// Gets currently active non weather warnings from the National Weather Service.
 	/// </summary>
 	/// <returns>An array <see cref="StormPredictionCenterWarning"/> class which contains the processed data in a more easy to use format.</returns>
-	public async Task<StormPredictionCenterWarning[]> getLatestNonWeatherWarnings()
+	public async Task<StormPredictionCenterWarning[]> getLatestNonWeatherWarnings(double[]? point = null)
 	{
 		List<StormPredictionCenterWarning> stormPredictionCenterWarnings = [];
-		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync("https://api.weather.gov/alerts/active?event=civil%20emergency,child%20abduction%20emergency,civil%20danger%20warning,earthquake%20warning,local%20area%20emergency,law%20enforcement%20warning,911%20telephone%20outage,hazardous%20materials%20warning,nuclear%20hazard%20warning,radiological%20hazard%20warning,evacuation%20immediate,fire%20warning,shelter%20in%20place%20warning,volcano%20warning,tsunami%20warning,tsunami%20watch,tsunami%20advisory,tsunami%20information%20statement"));
+		var url = "https://api.weather.gov/alerts/active?event=civil%20emergency,child%20abduction%20emergency,civil%20danger%20warning,earthquake%20warning,local%20area%20emergency,law%20enforcement%20warning,911%20telephone%20outage,hazardous%20materials%20warning,nuclear%20hazard%20warning,radiological%20hazard%20warning,evacuation%20immediate,fire%20warning,shelter%20in%20place%20warning,volcano%20warning,tsunami%20warning,tsunami%20watch,tsunami%20advisory,tsunami%20information%20statement";
+		if (point != null)
+			url += $"&point={point[0]},{point[1]}";
+		FeatureCollection? data = JsonConvert.DeserializeObject<FeatureCollection>(await Utils.downloadStringAsync(url));
 		if (data == null) return [];
 		if (data.Features == null) return [];
 		if (data.Features.Count == 0) return [];
@@ -1188,7 +1218,6 @@ public class Warnings(StormPredictionCenter? self)
 			stormPredictionCenterWarning.warningName = alert;
 			stormPredictionCenterWarnings.Add(stormPredictionCenterWarning);
 		}
-
-		return [.. stormPredictionCenterWarnings];
+		return [..stormPredictionCenterWarnings];
 	}
 }
